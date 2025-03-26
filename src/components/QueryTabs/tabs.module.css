@@ -15,6 +15,12 @@
   min-width: 0;
   padding-right: 8px;
   align-items: center;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabsList::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {
@@ -99,7 +105,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 12px;
-  min-width: 80px;
+  min-width: 100px;
   text-align: center;
   display: flex;
   align-items: center;
@@ -133,4 +139,19 @@
 .iconButton:hover {
   background: var(--background-hover);
   color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .tabsContainer {
+    padding: 4px 4px 0;
+  }
+
+  .runButton {
+    min-width: 80px;
+    padding: 4px 8px;
+  }
+
+  .iconButton {
+    padding: 4px;
+  }
 }

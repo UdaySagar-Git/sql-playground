@@ -9,25 +9,27 @@ interface ResultTableProps {
 export const ResultTable = ({ data, columns }: ResultTableProps) => {
   return (
     <div className={styles.tableContainer}>
-      <div className={styles.tableHeader}>
-        {columns.map((column) => (
-          <div key={column.name} className={styles.headerCell}>
-            <div className={styles.columnName}>{column.name}</div>
-            <div className={styles.columnType}>{column.type}</div>
-          </div>
-        ))}
-      </div>
-      <div className={styles.tableBody}>
-        {data.map((row, rowIndex) => (
-          <div key={rowIndex} className={styles.tableRow}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
             {columns.map((column) => (
-              <div key={column.name} className={styles.cell}>
-                {row[column.name]}
-              </div>
+              <th key={column.name}>
+                <div className={styles.columnName}>{column.name}</div>
+                <div className={styles.columnType}>{column.type}</div>
+              </th>
             ))}
-          </div>
-        ))}
-      </div>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {columns.map((column) => (
+                <td key={column.name}>{row[column.name]}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }; 

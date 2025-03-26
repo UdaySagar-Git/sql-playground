@@ -7,10 +7,11 @@ import { QueryHistory } from "@/components/QueryHistory/QueryHistory";
 import { ResultTable } from "@/components/QueryResults/ResultTable";
 import { SavedQueries } from "@/components/SavedQueries/SavedQueries";
 import { QueryTabs } from "@/components/QueryTabs/QueryTabs";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { Header } from "@/components/Header/Header";
 import { mockTables, mockQueries, mockResults } from "@/_mock/mockData";
 import { useState } from "react";
 import styles from "./page.module.css";
+import { useMobile } from "@/hooks/useMobile";
 
 interface Tab {
   id: string;
@@ -25,21 +26,27 @@ export default function Home() {
   const [activeTabId, setActiveTabId] = useState<string>("1");
   const [selectedTable, setSelectedTable] = useState(mockTables[0]);
   const [savedQueries, setSavedQueries] = useState(mockQueries);
+  const isMobile = useMobile();
+  const [showLeftPanel, setShowLeftPanel] = useState(false);
+  const [showRightPanel, setShowRightPanel] = useState(false);
 
   const handleTableSelect = (tableName: string) => {
     const table = mockTables.find(t => t.name === tableName);
     if (table) {
       setSelectedTable(table);
       updateCurrentTabQuery(`SELECT * FROM ${tableName};`);
+      if (isMobile) setShowLeftPanel(false);
     }
   };
 
   const handleColumnSelect = (tableName: string, columnName: string) => {
     updateCurrentTabQuery(`SELECT ${columnName} FROM ${tableName};`);
+    if (isMobile) setShowLeftPanel(false);
   };
 
   const handleQuerySelect = (query: string) => {
     updateCurrentTabQuery(query);
+    if (isMobile) setShowRightPanel(false);
   };
 
   const handleQueryUpdate = (id: string, displayName: string | undefined) => {
@@ -124,9 +131,18 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <ThemeToggle />
+      <Header
+        showLeftPanel={showLeftPanel}
+        showRightPanel={showRightPanel}
+        onLeftPanelToggle={() => setShowLeftPanel(!showLeftPanel)}
+        onRightPanelToggle={() => setShowRightPanel(!showRightPanel)}
+      />
       <PanelGroup direction="horizontal" className={styles.panelGroup}>
-        <Panel defaultSize={20} minSize={15} className={styles.panel}>
+        <Panel
+          defaultSize={20}
+          minSize={15}
+          className={`${styles.panel} ${showLeftPanel ? styles.active : ''}`}
+        >
           <PanelGroup direction="vertical" className={styles.leftPanelGroup}>
             <Panel defaultSize={60} minSize={30} className={styles.leftPanel}>
               <TableList
@@ -174,7 +190,11 @@ export default function Home() {
           </div>
         </Panel>
         <PanelResizeHandle className={styles.resizeHandle} />
-        <Panel defaultSize={20} minSize={15} className={styles.panel}>
+        <Panel
+          defaultSize={20}
+          minSize={15}
+          className={`${styles.panel} ${showRightPanel ? styles.active : ''}`}
+        >
           <QueryHistory queries={mockQueries} onQuerySelect={handleQuerySelect} />
         </Panel>
       </PanelGroup>

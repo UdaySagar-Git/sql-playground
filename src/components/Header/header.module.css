@@ -1,0 +1,52 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+  height: 48px;
+}
+
+.headerLeft {
+  display: none;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 8px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.menuButton:hover {
+  background: var(--background-hover);
+}
+
+@media (max-width: 768px) {
+  .header {
+    justify-content: space-between;
+  }
+
+  .headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .menuButton {
+    display: flex;
+  }
+}
