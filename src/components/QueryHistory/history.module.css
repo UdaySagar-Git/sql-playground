@@ -1,0 +1,53 @@
+.container {
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--background-secondary);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.queryItem {
+  padding: 8px 12px;
+  text-align: left;
+  background: var(--background-tertiary);
+  border: none;
+  border-radius: 4px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.queryItem:hover {
+  background: var(--background-hover);
+}
+
+.queryText {
+  font-family: "SF Mono", "Consolas", monospace;
+  font-size: 12px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+.timestamp {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: "SF Mono", "Consolas", monospace;
+}
