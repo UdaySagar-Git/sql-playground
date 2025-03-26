@@ -23,16 +23,29 @@
 }
 
 .queryItem {
-  padding: 8px 12px;
-  text-align: left;
-  background: var(--background-tertiary);
-  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
   border-radius: 4px;
-  color: var(--text-primary);
-  cursor: pointer;
+  background: var(--background-tertiary);
+  min-width: 0;
 }
 
-.queryItem:hover {
+.queryButton {
+  flex: 1;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 4px;
+  min-width: 0;
+  width: 100%;
+}
+
+.queryButton:hover {
   background: var(--background-hover);
 }
 
@@ -44,10 +57,71 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--text-primary);
+  max-width: 100%;
 }
 
 .timestamp {
   font-size: 10px;
   color: var(--text-secondary);
   font-family: "SF Mono", "Consolas", monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+  padding-right: 4px;
+  flex-shrink: 0;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  padding: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconButton:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+}
+
+.editContainer {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  min-width: 0;
+}
+
+.editInput {
+  flex: 1;
+  background: var(--background-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: var(--text-primary);
+  font-family: "SF Mono", "Consolas", monospace;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.editInput:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.editActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
 }

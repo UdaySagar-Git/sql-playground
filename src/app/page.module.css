@@ -49,37 +49,6 @@
   flex-direction: column;
 }
 
-.editorControls {
-  padding: 8px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  background-color: var(--background-secondary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.button {
-  padding: 6px 12px;
-  background: var(--accent-primary);
-  color: var(--text-primary);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 12px;
-  min-width: 80px;
-  text-align: center;
-}
-
-.button:hover {
-  background: var(--accent-secondary);
-  color: var(--background-primary);
-  transform: translateY(-1px);
-}
-
 .button:active {
   transform: translateY(0);
 }

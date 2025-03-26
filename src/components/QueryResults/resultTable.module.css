@@ -22,10 +22,29 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .headerCell:last-child {
   border-right: none;
+}
+
+.columnName {
+  font-weight: 600;
+}
+
+.columnType {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: normal;
+  text-transform: none;
+  background: var(--background-tertiary);
+  padding: 2px 4px;
+  border-radius: 3px;
+  display: inline-block;
+  width: fit-content;
 }
 
 .tableBody {

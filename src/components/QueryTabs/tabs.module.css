@@ -1,0 +1,136 @@
+.tabsContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 0;
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tabsList {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  padding-right: 8px;
+  align-items: center;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--background-tertiary);
+  border-radius: 4px 4px 0 0;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.activeTab {
+  background: var(--background-primary);
+}
+
+.tabButton {
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.closeButton {
+  padding: 4px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  margin-right: 4px;
+}
+
+.closeButton:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+}
+
+.addTabButton {
+  padding: 4px 8px;
+  background: var(--background-tertiary);
+  border: none;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.addTabButton:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.runButton {
+  padding: 6px 12px;
+  background: var(--accent-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+  min-width: 80px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.runButton:hover {
+  background: var(--accent-secondary);
+  color: var(--background-primary);
+  transform: translateY(-1px);
+}
+
+.runIcon {
+  margin-top: 1px;
+}
+
+.iconButton {
+  padding: 6px;
+  background: var(--background-tertiary);
+  border: none;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.iconButton:hover {
+  background: var(--background-hover);
+  color: var(--text-primary);
+}

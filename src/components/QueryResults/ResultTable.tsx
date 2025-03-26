@@ -1,9 +1,9 @@
 import styles from "./resultTable.module.css";
-import { ResultRow } from "@/_mock/mockData";
+import { ResultRow, Column } from "@/_mock/mockData";
 
 interface ResultTableProps {
   data: ResultRow[];
-  columns: string[];
+  columns: Column[];
 }
 
 export const ResultTable = ({ data, columns }: ResultTableProps) => {
@@ -11,8 +11,9 @@ export const ResultTable = ({ data, columns }: ResultTableProps) => {
     <div className={styles.tableContainer}>
       <div className={styles.tableHeader}>
         {columns.map((column) => (
-          <div key={column} className={styles.headerCell}>
-            {column}
+          <div key={column.name} className={styles.headerCell}>
+            <div className={styles.columnName}>{column.name}</div>
+            <div className={styles.columnType}>{column.type}</div>
           </div>
         ))}
       </div>
@@ -20,8 +21,8 @@ export const ResultTable = ({ data, columns }: ResultTableProps) => {
         {data.map((row, rowIndex) => (
           <div key={rowIndex} className={styles.tableRow}>
             {columns.map((column) => (
-              <div key={column} className={styles.cell}>
-                {row[column]}
+              <div key={column.name} className={styles.cell}>
+                {row[column.name]}
               </div>
             ))}
           </div>
