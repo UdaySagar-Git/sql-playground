@@ -1,0 +1,49 @@
+.themeToggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  height: 36px;
+  width: 36px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+  transition: background-color 0.2s;
+  z-index: 50;
+}
+
+.themeToggle:hover {
+  background-color: var(--gray-alpha-100);
+}
+
+.sun {
+  height: 16px;
+  width: 16px;
+  rotate: 0deg;
+  scale: 100%;
+  transition: all 0.25s;
+}
+
+.moon {
+  height: 16px;
+  width: 16px;
+  position: absolute;
+  rotate: 90deg;
+  scale: 0;
+  transition: all 0.25s;
+}
+
+[data-theme="dark"] .sun {
+  rotate: -90deg;
+  scale: 0;
+}
+
+[data-theme="dark"] .moon {
+  rotate: 0deg;
+  scale: 100%;
+}
