@@ -1,10 +1,5 @@
+import { Query } from "@/types";
 import styles from "./history.module.css";
-
-interface Query {
-  id: string;
-  sql: string;
-  timestamp: Date;
-}
 
 interface QueryHistoryProps {
   queries: Query[];

@@ -8,16 +8,11 @@ import { ResultTable } from "@/components/QueryResults/ResultTable";
 import { SavedQueries } from "@/components/SavedQueries/SavedQueries";
 import { QueryTabs } from "@/components/QueryTabs/QueryTabs";
 import { Header } from "@/components/Header/Header";
-import { mockTables, mockQueries, mockResults } from "@/_mock/mockData";
+import { mockTables, mockQueries, mockResults } from "@/mock";
 import { useState } from "react";
 import styles from "./page.module.css";
 import { useMobile } from "@/hooks/useMobile";
-
-interface Tab {
-  id: string;
-  name: string;
-  query: string;
-}
+import { Tab } from "@/types";
 
 export default function Home() {
   const [tabs, setTabs] = useState<Tab[]>([

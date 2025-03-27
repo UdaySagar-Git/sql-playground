@@ -1,5 +1,5 @@
 import styles from "./savedQueries.module.css";
-import { Query } from "@/_mock/mockData";
+import { Query } from "@/types";
 import { Edit2, Trash2, Check, X } from "lucide-react";
 import { useState } from "react";
 

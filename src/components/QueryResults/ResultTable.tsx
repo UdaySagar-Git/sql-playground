@@ -1,5 +1,5 @@
 import styles from "./resultTable.module.css";
-import { ResultRow, Column } from "@/_mock/mockData";
+import { ResultRow, Column } from "@/types";
 
 interface ResultTableProps {
   data: ResultRow[];

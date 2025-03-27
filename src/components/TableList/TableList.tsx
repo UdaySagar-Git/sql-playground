@@ -1,16 +1,7 @@
 import styles from "./tableList.module.css";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
-
-interface Column {
-  name: string;
-  type: string;
-}
-
-interface Table {
-  name: string;
-  columns: Column[];
-}
+import { Table } from "@/types";
 
 interface TableListProps {
   tables: Table[];

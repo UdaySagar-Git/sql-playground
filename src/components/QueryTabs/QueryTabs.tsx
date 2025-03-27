@@ -1,11 +1,6 @@
+import { Tab } from "@/types";
 import styles from "./tabs.module.css";
 import { X, Plus, Play, Save, Trash2 } from "lucide-react";
-
-interface Tab {
-  id: string;
-  name: string;
-  query: string;
-}
 
 interface QueryTabsProps {
   tabs: Tab[];
