@@ -1,6 +1,6 @@
-import { Query } from "@/types";
+import { SavedQuery } from "@/types";
 
-export const mockQueries: Query[] = [
+export const mockQueries: SavedQuery[] = [
   {
     id: "1",
     sql: "SELECT * FROM employees;",

@@ -6,29 +6,42 @@ export interface Tab {
   query: string;
 }
 
-export interface Column {
-  name: string;
-  type: string;
+export interface QueryResult {
+  columns: string[];
+  values: SqlValue[][];
 }
 
 export interface Table {
   name: string;
-  columns: Column[];
-  data: Record<string, SqlValue>[];
+  columns: {
+    name: string;
+    type: string;
+  }[];
+  data?: Record<string, SqlValue>[];
 }
 
-export interface Query {
+export interface SavedQuery {
   id: string;
   sql: string;
   displayName?: string;
   timestamp: Date;
 }
 
-export interface ResultRow {
-  [key: string]: SqlValue;
+export interface QueryHistory {
+  id: string;
+  sql: string;
+  timestamp: Date;
+  results?: QueryResult;
 }
 
-export interface QueryResult {
-  columns: string[];
-  values: SqlValue[][];
+export interface SQLServiceInterface {
+  initialize(): Promise<boolean>;
+  executeQuery(sql: string): Promise<QueryResult[]>;
+  getTables(): Promise<Table[]>;
+  saveQuery(query: SavedQuery): Promise<void>;
+  getSavedQueries(): Promise<SavedQuery[]>;
+  deleteQuery(id: string): Promise<void>;
+  updateQuery(id: string, displayName: string | undefined): Promise<void>;
+  saveQueryHistory(history: QueryHistory): Promise<void>;
+  getQueryHistory(): Promise<QueryHistory[]>;
 }

@@ -1,8 +1,8 @@
-import { Query } from "@/types";
+import { QueryHistory as QueryHistoryType } from "@/types";
 import styles from "./history.module.css";
 
 interface QueryHistoryProps {
-  queries: Query[];
+  queries: QueryHistoryType[];
   onQuerySelect: (query: string) => void;
 }
 

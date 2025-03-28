@@ -1,10 +1,10 @@
 import styles from "./savedQueries.module.css";
-import { Query } from "@/types";
+import { SavedQuery as SavedQueryType } from "@/types";
 import { Edit2, Trash2, Check, X } from "lucide-react";
 import { useState } from "react";
 
 interface SavedQueriesProps {
-  queries: Query[];
+  queries: SavedQueryType[];
   onQuerySelect: (query: string) => void;
   onQueryUpdate: (id: string, displayName: string | undefined) => void;
   onQueryDelete: (id: string) => void;
@@ -19,7 +19,7 @@ export const SavedQueries = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
 
-  const handleEditStart = (query: Query) => {
+  const handleEditStart = (query: SavedQueryType) => {
     setEditingId(query.id);
     setEditValue(query.displayName || "");
   };

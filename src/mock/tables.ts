@@ -4,7 +4,7 @@ export const mockTables: Table[] = [
   {
     name: "employees",
     columns: [
-      { name: "id", type: "INTEGER" },
+      { name: "id", type: "INTEGER PRIMARY KEY" },
       { name: "name", type: "VARCHAR(100)" },
       { name: "title", type: "VARCHAR(50)" },
       { name: "department", type: "VARCHAR(50)" },
@@ -41,7 +41,7 @@ export const mockTables: Table[] = [
   {
     name: "customers",
     columns: [
-      { name: "id", type: "INTEGER" },
+      { name: "id", type: "INTEGER PRIMARY KEY" },
       { name: "name", type: "VARCHAR(100)" },
       { name: "email", type: "VARCHAR(100)" },
       { name: "country", type: "VARCHAR(50)" },
@@ -86,7 +86,7 @@ export const mockTables: Table[] = [
   {
     name: "orders",
     columns: [
-      { name: "id", type: "INTEGER" },
+      { name: "id", type: "INTEGER PRIMARY KEY" },
       { name: "customer_id", type: "INTEGER" },
       { name: "order_date", type: "DATE" },
       { name: "total_amount", type: "DECIMAL(10,2)" },
@@ -123,7 +123,7 @@ export const mockTables: Table[] = [
   {
     name: "products",
     columns: [
-      { name: "id", type: "INTEGER" },
+      { name: "id", type: "INTEGER PRIMARY KEY" },
       { name: "name", type: "VARCHAR(100)" },
       { name: "price", type: "DECIMAL(10,2)" },
       { name: "category", type: "VARCHAR(50)" },

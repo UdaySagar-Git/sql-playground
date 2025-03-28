@@ -1,66 +1,140 @@
 import styles from "./tableList.module.css";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
+import { useState, useCallback } from "react";
+import { SQLService } from "@/lib/sql";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Table } from "@/types";
 
 interface TableListProps {
-  tables: Table[];
   onTableSelect: (tableName: string) => void;
   onColumnSelect: (tableName: string, columnName: string) => void;
+  sqlService: SQLService;
 }
 
-export const TableList = ({ tables, onTableSelect, onColumnSelect }: TableListProps) => {
+export const TableList = ({ onTableSelect, onColumnSelect, sqlService }: TableListProps) => {
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const toggleTable = (tableName: string) => {
-    const newExpanded = new Set(expandedTables);
-    if (newExpanded.has(tableName)) {
-      newExpanded.delete(tableName);
-    } else {
-      newExpanded.add(tableName);
+  const tables = useLiveQuery(
+    async () => {
+      try {
+        return await sqlService.getTables();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load tables");
+        return [];
+      }
+    },
+    [],
+    []
+  );
+
+  const toggleTable = useCallback((tableName: string) => {
+    setExpandedTables(prev => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(tableName)) {
+        newExpanded.delete(tableName);
+      } else {
+        newExpanded.add(tableName);
+      }
+      return newExpanded;
+    });
+  }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    setError(null);
+    try {
+      await sqlService.getTables();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to refresh tables");
+    } finally {
+      setIsRefreshing(false);
     }
-    setExpandedTables(newExpanded);
-  };
+  }, [sqlService]);
+
+  const handleTableClick = useCallback((e: React.MouseEvent, tableName: string) => {
+    e.stopPropagation();
+    onTableSelect(tableName);
+  }, [onTableSelect]);
+
+  const handleColumnClick = useCallback((tableName: string, columnName: string) => {
+    onColumnSelect(tableName, columnName);
+  }, [onColumnSelect]);
+
+  const renderTableColumns = useCallback((table: Table) => (
+    <div className={styles.columnsList}>
+      {table.columns.map((column) => (
+        <div
+          key={column.name}
+          className={styles.columnItem}
+          onClick={() => handleColumnClick(table.name, column.name)}
+        >
+          <span className={styles.columnName}>{column.name}</span>
+          <span className={styles.columnType}>{column.type}</span>
+        </div>
+      ))}
+    </div>
+  ), [handleColumnClick]);
+
+  const renderTable = useCallback((table: Table) => (
+    <div key={table.name} className={styles.tableWrapper}>
+      <div className={styles.tableHeader} onClick={() => toggleTable(table.name)}>
+        {expandedTables.has(table.name) ? (
+          <ChevronDown className={styles.chevron} />
+        ) : (
+          <ChevronRight className={styles.chevron} />
+        )}
+        <button
+          className={styles.tableItem}
+          onClick={(e) => handleTableClick(e, table.name)}
+        >
+          {table.name}
+        </button>
+      </div>
+      {expandedTables.has(table.name) && renderTableColumns(table)}
+    </div>
+  ), [expandedTables, toggleTable, handleTableClick, renderTableColumns]);
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h2 className={styles.title}>Tables</h2>
+          <button
+            className={styles.refreshButton}
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`${styles.refreshIcon} ${isRefreshing ? styles.spinning : ''}`} />
+          </button>
+        </div>
+        <div className={styles.error}>{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Tables</h2>
-      <div className={styles.list}>
-        {tables.map((table) => (
-          <div key={table.name} className={styles.tableWrapper}>
-            <div className={styles.tableHeader} onClick={() => toggleTable(table.name)}>
-              {expandedTables.has(table.name) ? (
-                <ChevronDown className={styles.chevron} />
-              ) : (
-                <ChevronRight className={styles.chevron} />
-              )}
-              <button
-                className={styles.tableItem}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTableSelect(table.name);
-                }}
-              >
-                {table.name}
-              </button>
-            </div>
-            {expandedTables.has(table.name) && (
-              <div className={styles.columnsList}>
-                {table.columns.map((column) => (
-                  <div
-                    key={column.name}
-                    className={styles.columnItem}
-                    onClick={() => onColumnSelect(table.name, column.name)}
-                  >
-                    <span className={styles.columnName}>{column.name}</span>
-                    <span className={styles.columnType}>{column.type}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+      <div className={styles.header}>
+        <h2 className={styles.title}>Tables</h2>
+        <button
+          className={styles.refreshButton}
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+        >
+          <RefreshCw className={`${styles.refreshIcon} ${isRefreshing ? styles.spinning : ''}`} />
+        </button>
       </div>
+      {!tables ? (
+        <div className={styles.loading}>Loading tables...</div>
+      ) : tables.length === 0 ? (
+        <div className={styles.noTables}>No tables available</div>
+      ) : (
+        <div className={styles.list}>
+          {tables.map(renderTable)}
+        </div>
+      )}
     </div>
   );
 }; 
