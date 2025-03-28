@@ -8,30 +8,50 @@ import { ResultTable } from "@/components/QueryResults/ResultTable";
 import { SavedQueries } from "@/components/SavedQueries/SavedQueries";
 import { QueryTabs } from "@/components/QueryTabs/QueryTabs";
 import { Header } from "@/components/Header/Header";
-import { mockTables, mockQueries, mockResults } from "@/mock";
-import { useState } from "react";
+import { mockTables, mockQueries } from "@/mock";
+import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { useMobile } from "@/hooks/useMobile";
 import { Tab } from "@/types";
+import { SQLService } from "@/lib/sql";
+import { QueryResult } from "@/types";
+import { SqlValue } from "sql.js";
 
 export default function Home() {
   const [tabs, setTabs] = useState<Tab[]>([
     { id: "1", name: "Query 1", query: "" }
   ]);
   const [activeTabId, setActiveTabId] = useState<string>("1");
-  const [selectedTable, setSelectedTable] = useState(mockTables[0]);
   const [savedQueries, setSavedQueries] = useState(mockQueries);
+  const [queryResults, setQueryResults] = useState<QueryResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const isMobile = useMobile();
   const [showLeftPanel, setShowLeftPanel] = useState(false);
   const [showRightPanel, setShowRightPanel] = useState(false);
+  const [sqlService, setSqlService] = useState<SQLService | null>(null);
+
+  useEffect(() => {
+    const initSQL = async () => {
+      const service = new SQLService();
+      const success = await service.initialize();
+      if (success) {
+        setSqlService(service);
+        mockTables.forEach(table => {
+          const columns = table.columns.map(col => col.name);
+          const values = table.data.map((row: Record<string, SqlValue>) =>
+            columns.map(col => row[col])
+          );
+          service.createTable(table.name, columns, values);
+        });
+      }
+    };
+    initSQL();
+  }, []);
 
   const handleTableSelect = (tableName: string) => {
-    const table = mockTables.find(t => t.name === tableName);
-    if (table) {
-      setSelectedTable(table);
-      updateCurrentTabQuery(`SELECT * FROM ${tableName};`);
-      if (isMobile) setShowLeftPanel(false);
-    }
+    updateCurrentTabQuery(`SELECT * FROM ${tableName};`);
+    if (isMobile) setShowLeftPanel(false);
   };
 
   const handleColumnSelect = (tableName: string, columnName: string) => {
@@ -113,13 +133,28 @@ export default function Home() {
     }
   };
 
-  const handleRunQuery = () => {
-    // TODO: pending
-    console.log(currentTab?.query);
+  const handleRunQuery = async () => {
+    const currentTab = tabs.find(tab => tab.id === activeTabId);
+    if (!currentTab || !sqlService) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const results = sqlService.executeQuery(currentTab.query);
+      setQueryResults(results[0]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred while executing the query");
+      setQueryResults(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleClear = () => {
     updateCurrentTabQuery("");
+    setQueryResults(null);
+    setError(null);
   };
 
   const currentTab = tabs.find(tab => tab.id === activeTabId);
@@ -179,7 +214,13 @@ export default function Home() {
               </Panel>
               <PanelResizeHandle className={styles.editorResizeHandle} />
               <Panel defaultSize={40} minSize={20} className={styles.resultPanel}>
-                <ResultTable data={mockResults} columns={selectedTable.columns} />
+                {isLoading ? (
+                  <div className={styles.loading}>Executing query...</div>
+                ) : error ? (
+                  <div className={styles.error}>{error}</div>
+                ) : (
+                  <ResultTable data={queryResults} />
+                )}
               </Panel>
             </PanelGroup>
           </div>

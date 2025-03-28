@@ -1,30 +1,28 @@
 import styles from "./resultTable.module.css";
-import { ResultRow, Column } from "@/types";
+import { QueryResult } from "@/types";
 
-interface ResultTableProps {
-  data: ResultRow[];
-  columns: Column[];
-}
+export const ResultTable = ({ data }: { data: QueryResult | null; }) => {
+  if (!data || !data.columns || !data.values) {
+    return <div className={styles.noResults}>No results to display</div>;
+  }
 
-export const ResultTable = ({ data, columns }: ResultTableProps) => {
   return (
     <div className={styles.tableContainer}>
       <table className={styles.table}>
         <thead>
           <tr>
-            {columns.map((column) => (
-              <th key={column.name}>
-                <div className={styles.columnName}>{column.name}</div>
-                <div className={styles.columnType}>{column.type}</div>
+            {data.columns.map((column) => (
+              <th key={column}>
+                <div className={styles.columnName}>{column}</div>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => (
+          {data.values.map((row, rowIndex) => (
             <tr key={rowIndex}>
-              {columns.map((column) => (
-                <td key={column.name}>{row[column.name]}</td>
+              {row.map((value, colIndex) => (
+                <td key={`${rowIndex}-${colIndex}`}>{value ?? ""}</td>
               ))}
             </tr>
           ))}

@@ -1,3 +1,5 @@
+import { SqlValue } from "sql.js";
+
 export interface Tab {
   id: string;
   name: string;
@@ -12,6 +14,7 @@ export interface Column {
 export interface Table {
   name: string;
   columns: Column[];
+  data: Record<string, SqlValue>[];
 }
 
 export interface Query {
@@ -22,5 +25,10 @@ export interface Query {
 }
 
 export interface ResultRow {
-  [key: string]: string | number;
+  [key: string]: SqlValue;
+}
+
+export interface QueryResult {
+  columns: string[];
+  values: SqlValue[][];
 }
