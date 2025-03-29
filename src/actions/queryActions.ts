@@ -1,4 +1,4 @@
-import { SavedQuery } from "@/types";
+import { SavedQuery, PaginatedResponse, PaginationParams } from "@/types";
 import { dexieDb } from "@/lib/dexie";
 
 export const saveQuery = async (query: SavedQuery): Promise<void> => {
@@ -29,11 +29,51 @@ export const updateQuery = async (
   }
 };
 
-export const getSavedQueries = async (): Promise<SavedQuery[]> => {
+export const getPaginatedSavedQueries = async (
+  params: PaginationParams
+): Promise<PaginatedResponse<SavedQuery>> => {
   try {
-    return await dexieDb.savedQueriesTable.toArray();
+    const { limit, cursor, searchTerm } = params;
+
+    let query = dexieDb.savedQueriesTable.orderBy("timestamp").reverse();
+
+    if (searchTerm && searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      query = query.filter(
+        (item) =>
+          (item.displayName && item.displayName.toLowerCase().includes(term)) ||
+          item.sql.toLowerCase().includes(term)
+      );
+    }
+
+    const totalCountPromise =
+      searchTerm && searchTerm.trim()
+        ? query.clone().count()
+        : dexieDb.savedQueriesTable.count();
+
+    if (cursor) {
+      const cursorItem = await dexieDb.savedQueriesTable.get(cursor);
+      if (cursorItem) {
+        query = query.filter((item) => item.timestamp < cursorItem.timestamp);
+      }
+    }
+
+    const items = await query.limit(limit + 1).toArray();
+    const totalCount = await totalCountPromise;
+
+    const hasMore = items.length > limit;
+    const data = hasMore ? items.slice(0, limit) : items;
+    const nextCursor =
+      hasMore && data.length > 0 ? data[data.length - 1].id : null;
+
+    return {
+      data,
+      nextCursor,
+      hasMore,
+      totalCount,
+    };
   } catch (err) {
-    console.error("Failed to get saved queries:", err);
+    console.error("Failed to get paginated saved queries:", err);
     throw err;
   }
 };

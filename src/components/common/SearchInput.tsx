@@ -22,4 +22,4 @@ export const SearchInput = ({ value, onChange, placeholder = "Search..." }: Sear
       </div>
     </div>
   );
-}; 
+};

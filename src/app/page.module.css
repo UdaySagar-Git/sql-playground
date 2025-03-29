@@ -26,6 +26,21 @@
   background: var(--accent-primary);
 }
 
+.leftResizeHandle {
+  height: 4px;
+  background: var(--border-color);
+  cursor: row-resize;
+  margin: 4px 0;
+}
+
+.leftResizeHandle:hover {
+  background: var(--accent-primary);
+}
+
+.leftPanelGroup {
+  height: 100%;
+}
+
 .editorContainer {
   display: flex;
   flex-direction: column;

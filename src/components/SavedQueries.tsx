@@ -1,21 +1,37 @@
 import { useState, useMemo, useCallback } from "react";
 import { toast } from "sonner";
-import { useSavedQueries, useUpdateQuery, useDeleteQuery } from "@/api/useQueryOperations";
+import { useInfiniteSavedQueries, useUpdateQuery, useDeleteQuery } from "@/api/useQueryOperations";
 import { useTabs } from "@/api/useQueryTabs";
+import { useDebounce } from "@/hooks/useDebounce";
 import { ListHeader } from "./common/ListHeader";
 import { SearchInput } from "./common/SearchInput";
 import { ListContainer } from "./common/ListContainer";
 import { ListItem } from "./common/ListItem";
+import styles from "./common/common.module.css";
+
+const ITEMS_PER_PAGE = 15;
 
 export const SavedQueries = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
-  const { data: queries = [], isLoading } = useSavedQueries();
+  const {
+    data: queriesData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteSavedQueries(ITEMS_PER_PAGE, debouncedSearchTerm);
+
   const updateQueryMutation = useUpdateQuery();
   const deleteQueryMutation = useDeleteQuery();
   const { updateCurrentTabQuery } = useTabs();
+
+  const displayedQueries = useMemo(() => {
+    return queriesData?.pages.flatMap(page => page.data) || [];
+  }, [queriesData]);
 
   const handleQueryUpdate = useCallback(async (id: string, displayName: string | undefined) => {
     try {
@@ -38,32 +54,22 @@ export const SavedQueries = () => {
   }, [deleteQueryMutation]);
 
   const handleClearAll = useCallback(async () => {
-    if (queries.length === 0) return;
+    if (displayedQueries.length === 0) return;
 
     try {
-      const deletePromises = queries.map(query => deleteQueryMutation.mutateAsync(query.id));
+      const deletePromises = displayedQueries.map(query => deleteQueryMutation.mutateAsync(query.id));
       await Promise.all(deletePromises);
       toast.success("All saved queries cleared");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to clear saved queries";
       toast.error(errorMessage);
     }
-  }, [queries, deleteQueryMutation]);
+  }, [displayedQueries, deleteQueryMutation]);
 
   const handleQuerySelect = useCallback((sql: string) => {
     updateCurrentTabQuery(sql);
     toast.success("Query loaded");
   }, [updateCurrentTabQuery]);
-
-  const filteredQueries = useMemo(() => {
-    if (!searchTerm.trim()) return queries;
-
-    const term = searchTerm.toLowerCase();
-    return queries.filter(query =>
-      (query.displayName && query.displayName.toLowerCase().includes(term)) ||
-      query.sql.toLowerCase().includes(term)
-    );
-  }, [queries, searchTerm]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -85,32 +91,46 @@ export const SavedQueries = () => {
     setEditingId(null);
   }, []);
 
+  const totalCount = useMemo(() => {
+    if (!queriesData?.pages || queriesData.pages.length === 0) return 0;
+    return queriesData.pages[0].totalCount || 0;
+  }, [queriesData]);
+
   return (
-    <div className="sql-panel">
+    <div className={`sql-panel ${styles.panelContainer}`} style={{ maxHeight: '100%', overflow: 'hidden' }}>
       <ListHeader
         title="Saved Queries"
-        itemCount={queries.length}
+        itemCount={totalCount}
         onClearAll={handleClearAll}
         isClearing={deleteQueryMutation.isPending}
       />
 
-      <SearchInput
-        value={searchTerm}
-        onChange={handleSearch}
-        placeholder="Search queries..."
-      />
+      <div>
+        <SearchInput
+          value={searchTerm}
+          onChange={handleSearch}
+          placeholder="Search queries..."
+        />
+      </div>
 
       <ListContainer
         isLoading={isLoading}
-        isEmpty={filteredQueries.length === 0}
-        emptyMessage={queries.length === 0 ? "No saved queries" : `No queries matching "${searchTerm}"`}
+        isEmpty={displayedQueries.length === 0}
+        emptyMessage={debouncedSearchTerm ? `No queries matching "${debouncedSearchTerm}"` : "No saved queries"}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={fetchNextPage}
+        loadMoreLabel="Loading more queries..."
+        currentCount={displayedQueries.length}
+        totalCount={totalCount}
+        showPaginationInfo={true}
       >
-        {filteredQueries.map((query) => (
+        {displayedQueries.map((query) => (
           <ListItem
             key={query.id}
             id={query.id}
             title={query.displayName || query.sql}
-            subtitle={query.timestamp.toLocaleTimeString('en-US', {
+            subtitle={new Date(query.timestamp).toLocaleTimeString('en-US', {
               hour12: false,
               hour: "2-digit",
               minute: "2-digit",

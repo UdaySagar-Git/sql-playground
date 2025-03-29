@@ -75,11 +75,11 @@ export default function Home() {
           className={`${styles.panel} ${showLeftPanel ? styles.active : ''}`}
         >
           <PanelGroup direction="vertical" className={styles.leftPanelGroup}>
-            <Panel defaultSize={60} minSize={30} className={styles.leftPanel}>
+            <Panel defaultSize={50} minSize={30} className={styles.leftPanel}>
               <TableList />
             </Panel>
             <PanelResizeHandle className={styles.leftResizeHandle} />
-            <Panel defaultSize={40} minSize={20} className={styles.leftPanel}>
+            <Panel defaultSize={50} minSize={30} className={styles.leftPanel}>
               <SavedQueries />
             </Panel>
           </PanelGroup>

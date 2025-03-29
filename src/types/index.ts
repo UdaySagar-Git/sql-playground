@@ -35,3 +35,16 @@ export interface QueryHistory {
   timestamp: Date;
   results?: QueryResult;
 }
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  totalCount?: number;
+}
+
+export interface PaginationParams {
+  limit: number;
+  cursor?: string | null;
+  searchTerm?: string;
+}
