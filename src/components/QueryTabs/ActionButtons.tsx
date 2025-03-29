@@ -16,12 +16,15 @@ export const ActionButtons = ({
   isRunning,
   isSaving,
 }: ActionButtonsProps) => {
+  const modKey = navigator.platform.toLowerCase().includes('mac') ? '⌘' : 'Ctrl';
+
   return (
     <div className={styles.actionButtons}>
       <button
         className={`${styles.runButton} ${isRunning ? styles.loading : ''}`}
         onClick={onRunQuery}
         disabled={isRunning}
+        title={`Run Query (${modKey}+Enter)`}
       >
         <Play size={14} className={styles.runIcon} />
         {isRunning ? 'Running...' : 'Run'}
