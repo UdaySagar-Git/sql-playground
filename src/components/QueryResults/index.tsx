@@ -1,6 +1,7 @@
 import styles from "./queryResults.module.css";
 import { useRef } from "react";
 import { useQueryResults } from "@/api/useQueryOperations";
+import { TableVirtuoso } from "react-virtuoso";
 import { SqlValue } from "sql.js";
 
 export const QueryResults = () => {
@@ -13,34 +14,52 @@ export const QueryResults = () => {
 
   return (
     <div className={styles.tableContainer} ref={containerRef}>
-      <table className={styles.table}>
-        <thead>
+      <TableVirtuoso
+        style={{ height: "100%", width: "100%" }}
+        data={results.values}
+        components={{
+          Table: ({ style, ...props }) => (
+            <table
+              {...props}
+              style={{ ...style }}
+              className={styles.table}
+            />
+          ),
+          TableRow: ({ ...props }) => <tr {...props} />,
+          TableHead: ({ ...props }) => (
+            <thead {...props} className={styles.tableHead} />
+          ),
+        }}
+        fixedHeaderContent={() => (
           <tr>
             {results.columns.map((column: string) => (
-              <th key={column} title={column}>
-                <div className={styles.columnName}>{column}</div>
+              <th
+                key={column}
+                className={styles.headerCell}
+                title={column}
+              >
+                {column}
               </th>
             ))}
           </tr>
-        </thead>
-        <tbody>
-          {results.values.map((row: SqlValue[], rowIndex: number) => (
-            <tr key={rowIndex}>
-              {row.map((value: SqlValue, colIndex: number) => {
-                const displayValue = value ?? "";
-                return (
-                  <td
-                    key={`${rowIndex}-${colIndex}`}
-                    title={typeof displayValue === 'string' ? displayValue : String(displayValue)}
-                  >
-                    {displayValue}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        )}
+        itemContent={(index, row) => (
+          <>
+            {row.map((value: SqlValue, colIndex: number) => {
+              const displayValue = value ?? "";
+              return (
+                <td
+                  key={`${index}-${colIndex}`}
+                  className={styles.cell}
+                  title={typeof displayValue === 'string' ? displayValue : String(displayValue)}
+                >
+                  {displayValue}
+                </td>
+              );
+            })}
+          </>
+        )}
+      />
     </div>
   );
 }; 

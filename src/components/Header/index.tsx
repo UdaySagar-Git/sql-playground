@@ -12,7 +12,7 @@ export const Header = () => {
     <header className={styles.header}>
       <div className={styles.headerLeft}>
         <button
-          className={styles.menuButton}
+          className={`${styles.menuButton} ${styles.mobileOnly}`}
           onClick={() => setShowLeftPanel(!showLeftPanel)}
           title="Database Tables"
         >
@@ -22,7 +22,7 @@ export const Header = () => {
       <div className={styles.headerRight}>
         <ThemeToggle />
         <button
-          className={styles.menuButton}
+          className={`${styles.menuButton} ${styles.mobileOnly}`}
           onClick={() => setShowRightPanel(!showRightPanel)}
           title="Query History"
         >

@@ -44,6 +44,10 @@
   transform: scale(0.95);
 }
 
+.mobileOnly {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .header {
     padding: 8px 12px;
@@ -51,5 +55,9 @@
 
   .menuButton {
     padding: 6px;
+  }
+
+  .mobileOnly {
+    display: flex;
   }
 }

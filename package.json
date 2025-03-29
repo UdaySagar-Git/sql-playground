@@ -20,6 +20,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-resizable-panels": "^2.1.7",
+    "react-virtuoso": "^4.12.6",
     "sonner": "^2.0.2",
     "sql.js": "^1.13.0"
   },

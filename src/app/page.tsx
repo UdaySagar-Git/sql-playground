@@ -71,7 +71,6 @@ export default function Home() {
       <PanelGroup direction="horizontal" className={styles.panelGroup}>
         <Panel
           defaultSize={20}
-          minSize={15}
           className={`${styles.panel} ${showLeftPanel ? styles.active : ''}`}
         >
           <PanelGroup direction="vertical" className={styles.leftPanelGroup}>
@@ -89,11 +88,11 @@ export default function Home() {
           <div className={styles.editorContainer}>
             <QueryTabs />
             <PanelGroup direction="vertical" className={styles.editorPanelGroup}>
-              <Panel defaultSize={60} minSize={30} className={styles.editorPanel}>
+              <Panel defaultSize={50} className={styles.editorPanel}>
                 <MonacoEditor />
               </Panel>
               <PanelResizeHandle className={styles.editorResizeHandle} />
-              <Panel defaultSize={40} minSize={20} className={styles.resultPanel}>
+              <Panel defaultSize={50} className={styles.resultPanel}>
                 <QueryResults />
               </Panel>
             </PanelGroup>
@@ -102,7 +101,6 @@ export default function Home() {
         <PanelResizeHandle className={styles.resizeHandle} />
         <Panel
           defaultSize={20}
-          minSize={15}
           className={`${styles.panel} ${showRightPanel ? styles.active : ''}`}
         >
           <QueryHistory />
