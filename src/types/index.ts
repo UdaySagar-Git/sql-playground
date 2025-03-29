@@ -55,3 +55,28 @@ export interface PaginationSettings {
   pageSize: number;
   totalRows: number;
 }
+
+export enum ChartType {
+  BAR = "bar",
+  LINE = "line",
+  PIE = "pie",
+  SCATTER = "scatter",
+}
+
+export interface ChartConfig {
+  type: ChartType;
+  title?: string;
+}
+
+export interface ChartMappings {
+  xAxis?: string;
+  yAxis?: string;
+  category?: string;
+  value?: string;
+}
+
+export interface VisualizationState {
+  activeTab: "data" | "visualization";
+  selectedChartType: ChartType;
+  chartMappings: ChartMappings;
+}

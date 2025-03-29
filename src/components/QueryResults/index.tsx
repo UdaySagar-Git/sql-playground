@@ -3,8 +3,9 @@ import { useRef, useState, useEffect } from "react";
 import { useQueryResults } from "@/api/useQueryOperations";
 import { TableVirtuoso } from "react-virtuoso";
 import { SqlValue } from "sql.js";
-import { PaginationSettings } from "@/types";
+import { ChartType, PaginationSettings, VisualizationState } from "@/types";
 import { PaginationControls } from "./PaginationControls";
+import { QueryCharts } from "./QueryCharts";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const DEFAULT_PAGE_SIZE = 10;
@@ -19,6 +20,12 @@ export const QueryResults = () => {
     totalRows: 0,
   });
 
+  const [visualizationState, setVisualizationState] = useState<VisualizationState>({
+    activeTab: 'data',
+    selectedChartType: ChartType.BAR,
+    chartMappings: {}
+  });
+
   useEffect(() => {
     if (results) {
       setPagination(prev => ({
@@ -26,6 +33,18 @@ export const QueryResults = () => {
         totalRows: results.values.length,
         currentPage: 1,
       }));
+
+      if (results.columns.length >= 2) {
+        setVisualizationState(prev => ({
+          ...prev,
+          chartMappings: {
+            xAxis: results.columns[0],
+            yAxis: results.columns[1],
+            category: results.columns[0],
+            value: results.columns[1]
+          }
+        }));
+      }
     }
   }, [results]);
 
@@ -71,54 +90,77 @@ export const QueryResults = () => {
 
   return (
     <div className={styles.queryResultsContainer}>
-      <div className={styles.tableContainer} ref={containerRef}>
-        <TableVirtuoso
-          style={{ height: "100%", width: "100%" }}
-          data={currentPageData}
-          components={{
-            Table: ({ style, ...props }) => (
-              <table
-                {...props}
-                style={{ ...style }}
-                className={styles.table}
-              />
-            ),
-            TableRow: ({ ...props }) => <tr {...props} />,
-            TableHead: ({ ...props }) => (
-              <thead {...props} className={styles.tableHead} />
-            ),
-          }}
-          fixedHeaderContent={() => (
-            <tr>
-              {results.columns.map((column: string) => (
-                <th
-                  key={column}
-                  className={styles.headerCell}
-                  title={column}
-                >
-                  {column}
-                </th>
-              ))}
-            </tr>
-          )}
-          itemContent={(index, row) => (
-            <>
-              {row.map((value: SqlValue, colIndex: number) => {
-                const displayValue = value ?? "";
-                return (
-                  <td
-                    key={`${index}-${colIndex}`}
-                    className={styles.cell}
-                    title={String(displayValue)}
-                  >
-                    {displayValue}
-                  </td>
-                );
-              })}
-            </>
-          )}
-        />
+      <div className={styles.resultsTabs}>
+        <button
+          className={`${styles.tabButton} ${visualizationState.activeTab === 'data' ? styles.activeTab : ''}`}
+          onClick={() => setVisualizationState(prev => ({ ...prev, activeTab: 'data' }))}
+        >
+          Data Table
+        </button>
+        <button
+          className={`${styles.tabButton} ${visualizationState.activeTab === 'visualization' ? styles.activeTab : ''}`}
+          onClick={() => setVisualizationState(prev => ({ ...prev, activeTab: 'visualization' }))}
+        >
+          Visualization
+        </button>
       </div>
+
+      {visualizationState.activeTab === 'data' ? (
+        <div className={styles.tableContainer} ref={containerRef}>
+          <TableVirtuoso
+            style={{ height: "100%", width: "100%" }}
+            data={currentPageData}
+            components={{
+              Table: ({ style, ...props }) => (
+                <table
+                  {...props}
+                  style={{ ...style }}
+                  className={styles.table}
+                />
+              ),
+              TableRow: ({ ...props }) => <tr {...props} />,
+              TableHead: ({ ...props }) => (
+                <thead {...props} className={styles.tableHead} />
+              ),
+            }}
+            fixedHeaderContent={() => (
+              <tr>
+                {results.columns.map((column: string) => (
+                  <th
+                    key={column}
+                    className={styles.headerCell}
+                    title={column}
+                  >
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            )}
+            itemContent={(index, row) => (
+              <>
+                {row.map((value: SqlValue, colIndex: number) => {
+                  const displayValue = value ?? "";
+                  return (
+                    <td
+                      key={`${index}-${colIndex}`}
+                      className={styles.cell}
+                      title={String(displayValue)}
+                    >
+                      {displayValue}
+                    </td>
+                  );
+                })}
+              </>
+            )}
+          />
+        </div>
+      ) : (
+        <QueryCharts
+          results={results}
+          visualizationState={visualizationState}
+          setVisualizationState={setVisualizationState}
+        />
+      )}
 
       <PaginationControls
         pagination={pagination}
