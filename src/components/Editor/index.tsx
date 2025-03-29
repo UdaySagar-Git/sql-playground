@@ -1,24 +1,24 @@
 import { Editor } from "@monaco-editor/react";
 import styles from "./editor.module.css";
+import { useCurrentQuery } from "@/api/useCurrentQuery";
+import { useTabs } from "@/api/useTabs";
 
-interface MonacoEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-}
+export const MonacoEditor = () => {
+  const { data: currentQuery = "" } = useCurrentQuery();
+  const { updateCurrentTabQuery } = useTabs();
 
-export const MonacoEditor = ({ value, onChange }: MonacoEditorProps) => {
   return (
     <div className={styles.editorContainer}>
       <Editor
         height="100%"
         defaultLanguage="sql"
         theme="vs-dark"
-        value={value}
-        onChange={(value) => onChange(value || "")}
+        value={currentQuery}
+        onChange={(val) => updateCurrentTabQuery(val || "")}
         options={{
           minimap: { enabled: false },
           fontSize: 14,
-          lineNumbers: "on",
+          wordWrap: "on",
         }}
       />
     </div>

@@ -1,7 +1,6 @@
 import { Table } from "@/types";
 import { dexieDb } from "@/lib/dexie";
-import { getDB } from "@/lib/sql";
-import { initializeSQL } from "@/lib/sql";
+import { getDB, initializeSQL, resetDB } from "@/lib/sql";
 import { mockTables } from "@/mock/tables";
 
 export const initializeSQLService = async (): Promise<boolean> => {
@@ -9,10 +8,11 @@ export const initializeSQLService = async (): Promise<boolean> => {
     const success = await initializeSQL();
     if (success) {
       await initializeTables();
+      return true;
     }
-    return success;
-  } catch (err) {
-    console.error("Failed to initialize SQL service:", err);
+    return false;
+  } catch {
+    resetDB();
     return false;
   }
 };
@@ -34,6 +34,9 @@ const createTableFromInfo = async (table: Table): Promise<void> => {
   }
 
   try {
+    const dropSQL = `DROP TABLE IF EXISTS ${table.name}`;
+    db.exec(dropSQL);
+
     const columnDefs = table.columns
       .map((col) => `${col.name} ${col.type}`)
       .join(", ");
@@ -46,7 +49,6 @@ const createTableFromInfo = async (table: Table): Promise<void> => {
 
     await dexieDb.tablesTable.put(table);
   } catch (err) {
-    console.error(`Failed to create table ${table.name}:`, err);
     throw err;
   }
 };
@@ -55,15 +57,27 @@ const insertTableData = async (table: Table): Promise<void> => {
   const db = getDB();
   if (!db) return;
 
-  for (const row of table.data!) {
-    const values = table.columns
-      .map((col) => {
-        const val = row[col.name];
-        return formatSqlValue(val);
-      })
-      .join(", ");
-    const insertSQL = `INSERT INTO ${table.name} VALUES (${values})`;
-    db.exec(insertSQL);
+  try {
+    // to avoid race conditions
+    db.exec("BEGIN TRANSACTION");
+
+    for (const row of table.data!) {
+      const values = table.columns
+        .map((col) => {
+          const val = row[col.name];
+          return formatSqlValue(val);
+        })
+        .join(", ");
+      const insertSQL = `INSERT INTO ${table.name} VALUES (${values})`;
+      db.exec(insertSQL);
+    }
+
+    db.exec("COMMIT");
+  } catch (err) {
+    try {
+      db.exec("ROLLBACK");
+    } catch {}
+    throw err;
   }
 };
 
@@ -75,10 +89,14 @@ const formatSqlValue = (val: unknown): string => {
 
 export const getTables = async (): Promise<Table[]> => {
   try {
+    const db = getDB();
+    if (!db) {
+      await initializeSQL();
+    }
+
     const tables = await dexieDb.tablesTable.toArray();
     return tables.sort((a, b) => a.name.localeCompare(b.name));
   } catch (err) {
-    console.error("Failed to get tables from IndexedDB:", err);
     throw err;
   }
 };

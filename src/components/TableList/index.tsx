@@ -1,33 +1,14 @@
 import styles from "./tableList.module.css";
 import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
 import { useState, useCallback } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { Table } from "@/types";
 import { toast } from "sonner";
-import { getTables } from "@/actions/tables";
+import { useTables, useRefreshTables } from "@/api/useTables";
+import { queryClient, QUERY_KEYS } from "@/lib/queryClient";
 
-interface TableListProps {
-  onTableSelect: (tableName: string) => void;
-  onColumnSelect: (tableName: string, columnName: string) => void;
-}
-
-export const TableList = ({ onTableSelect, onColumnSelect }: TableListProps) => {
+export const TableList = () => {
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const tables = useLiveQuery(
-    async () => {
-      try {
-        return await getTables();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load tables");
-        return [];
-      }
-    },
-    [],
-    []
-  );
+  const { data: tables = [], isLoading, isError, error } = useTables();
+  const refreshTablesMutation = useRefreshTables();
 
   const toggleTable = useCallback((tableName: string) => {
     setExpandedTables(prev => {
@@ -42,38 +23,34 @@ export const TableList = ({ onTableSelect, onColumnSelect }: TableListProps) => 
   }, []);
 
   const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true);
-    setError(null);
     try {
-      await getTables();
+      await refreshTablesMutation.mutateAsync();
       toast.success("Tables refreshed successfully");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to refresh tables";
-      setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setIsRefreshing(false);
     }
-  }, []);
+  }, [refreshTablesMutation]);
 
   const handleTableClick = useCallback((e: React.MouseEvent, tableName: string) => {
     e.stopPropagation();
-    onTableSelect(tableName);
+    queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], `SELECT * FROM ${tableName};`);
     toast.success(`Selected table: ${tableName}`);
-  }, [onTableSelect]);
+  }, []);
 
-  const handleColumnClick = useCallback((tableName: string, columnName: string) => {
-    onColumnSelect(tableName, columnName);
+  const handleColumnClick = useCallback((e: React.MouseEvent, tableName: string, columnName: string) => {
+    e.stopPropagation();
+    queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], `SELECT ${columnName} FROM ${tableName};`);
     toast.success(`Selected column: ${columnName} from ${tableName}`);
-  }, [onColumnSelect]);
+  }, []);
 
-  const renderTableColumns = useCallback((table: Table) => (
+  const renderTableColumns = useCallback((table: typeof tables[0]) => (
     <div className={styles.columnsList}>
       {table.columns.map((column) => (
         <div
           key={column.name}
           className={styles.columnItem}
-          onClick={() => handleColumnClick(table.name, column.name)}
+          onClick={(e) => handleColumnClick(e, table.name, column.name)}
         >
           <span className={styles.columnName}>{column.name}</span>
           <span className={styles.columnType}>{column.type}</span>
@@ -82,7 +59,7 @@ export const TableList = ({ onTableSelect, onColumnSelect }: TableListProps) => 
     </div>
   ), [handleColumnClick]);
 
-  const renderTable = useCallback((table: Table) => (
+  const renderTable = useCallback((table: typeof tables[0]) => (
     <div key={table.name} className={styles.tableWrapper}>
       <div className={styles.tableHeader} onClick={() => toggleTable(table.name)}>
         {expandedTables.has(table.name) ? (
@@ -101,7 +78,7 @@ export const TableList = ({ onTableSelect, onColumnSelect }: TableListProps) => 
     </div>
   ), [expandedTables, toggleTable, handleTableClick, renderTableColumns]);
 
-  if (error) {
+  if (isError) {
     return (
       <div className={styles.container}>
         <div className={styles.header}>
@@ -109,12 +86,12 @@ export const TableList = ({ onTableSelect, onColumnSelect }: TableListProps) => 
           <button
             className={styles.refreshButton}
             onClick={handleRefresh}
-            disabled={isRefreshing}
+            disabled={refreshTablesMutation.isPending}
           >
-            <RefreshCw className={`${styles.refreshIcon} ${isRefreshing ? styles.spinning : ''}`} />
+            <RefreshCw className={`${styles.refreshIcon} ${refreshTablesMutation.isPending ? styles.spinning : ''}`} />
           </button>
         </div>
-        <div className={styles.error}>{error}</div>
+        <div className={styles.error}>{error instanceof Error ? error.message : "Failed to load tables"}</div>
       </div>
     );
   }
@@ -126,12 +103,12 @@ export const TableList = ({ onTableSelect, onColumnSelect }: TableListProps) => 
         <button
           className={styles.refreshButton}
           onClick={handleRefresh}
-          disabled={isRefreshing}
+          disabled={refreshTablesMutation.isPending}
         >
-          <RefreshCw className={`${styles.refreshIcon} ${isRefreshing ? styles.spinning : ''}`} />
+          <RefreshCw className={`${styles.refreshIcon} ${refreshTablesMutation.isPending ? styles.spinning : ''}`} />
         </button>
       </div>
-      {!tables ? (
+      {isLoading ? (
         <div className={styles.loading}>Loading tables...</div>
       ) : tables.length === 0 ? (
         <div className={styles.noTables}>No tables available</div>

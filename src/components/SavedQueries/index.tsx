@@ -1,26 +1,57 @@
 import styles from "./savedQueries.module.css";
-import { SavedQuery as SavedQueryType } from "@/types";
 import { Edit2, Trash2, Check, X, Search } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { toast } from "sonner";
+import { useSavedQueries, useUpdateQuery, useDeleteQuery } from "@/api/useQueries";
+import { useTabs } from "@/api/useTabs";
 
-interface SavedQueriesProps {
-  queries: SavedQueryType[];
-  onQuerySelect: (query: string) => void;
-  onQueryUpdate: (id: string, displayName: string | undefined) => void;
-  onQueryDelete: (id: string) => void;
-  onClearAll: () => void;
-}
-
-export const SavedQueries = ({
-  queries,
-  onQuerySelect,
-  onQueryUpdate,
-  onQueryDelete,
-  onClearAll
-}: SavedQueriesProps) => {
+export const SavedQueries = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const { data: queries = [], isLoading } = useSavedQueries();
+  const updateQueryMutation = useUpdateQuery();
+  const deleteQueryMutation = useDeleteQuery();
+  const { updateCurrentTabQuery } = useTabs();
+
+  const handleQueryUpdate = useCallback(async (id: string, displayName: string | undefined) => {
+    try {
+      await updateQueryMutation.mutateAsync({ id, displayName });
+      toast.success("Query updated successfully");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update query";
+      toast.error(errorMessage);
+    }
+  }, [updateQueryMutation]);
+
+  const handleQueryDelete = useCallback(async (id: string) => {
+    try {
+      await deleteQueryMutation.mutateAsync(id);
+      toast.success("Query deleted successfully");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete query";
+      toast.error(errorMessage);
+    }
+  }, [deleteQueryMutation]);
+
+  const handleClearAll = useCallback(async () => {
+    if (queries.length === 0) return;
+
+    try {
+      const deletePromises = queries.map(query => deleteQueryMutation.mutateAsync(query.id));
+      await Promise.all(deletePromises);
+      toast.success("All saved queries cleared");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to clear saved queries";
+      toast.error(errorMessage);
+    }
+  }, [queries, deleteQueryMutation]);
+
+  const handleQuerySelect = useCallback((sql: string) => {
+    updateCurrentTabQuery(sql);
+    toast.success("Query loaded");
+  }, [updateCurrentTabQuery]);
 
   const filteredQueries = useMemo(() => {
     if (!searchTerm.trim()) return queries;
@@ -32,21 +63,21 @@ export const SavedQueries = ({
     );
   }, [queries, searchTerm]);
 
-  const handleEditStart = (query: SavedQueryType) => {
-    setEditingId(query.id);
-    setEditValue(query.displayName || "");
-  };
+  const handleEditStart = useCallback((id: string, displayName?: string) => {
+    setEditingId(id);
+    setEditValue(displayName || "");
+  }, []);
 
-  const handleEditSave = () => {
+  const handleEditSave = useCallback(() => {
     if (editingId) {
-      onQueryUpdate(editingId, editValue.trim() || undefined);
+      handleQueryUpdate(editingId, editValue.trim() || undefined);
       setEditingId(null);
     }
-  };
+  }, [editingId, editValue, handleQueryUpdate]);
 
-  const handleEditCancel = () => {
+  const handleEditCancel = useCallback(() => {
     setEditingId(null);
-  };
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -59,8 +90,9 @@ export const SavedQueries = ({
         {queries.length > 0 && (
           <button
             className={styles.clearAllButton}
-            onClick={onClearAll}
+            onClick={handleClearAll}
             title="Clear all saved queries"
+            disabled={deleteQueryMutation.isPending}
           >
             Clear All
           </button>
@@ -81,7 +113,9 @@ export const SavedQueries = ({
       </div>
 
       <div className={styles.list}>
-        {filteredQueries.length === 0 ? (
+        {isLoading ? (
+          <div className={styles.loading}>Loading saved queries...</div>
+        ) : filteredQueries.length === 0 ? (
           <div className={styles.emptyState}>
             {queries.length === 0
               ? "No saved queries"
@@ -109,6 +143,7 @@ export const SavedQueries = ({
                       className={styles.iconButton}
                       onClick={handleEditSave}
                       title="Save"
+                      disabled={updateQueryMutation.isPending}
                     >
                       <Check size={14} />
                     </button>
@@ -125,7 +160,7 @@ export const SavedQueries = ({
                 <>
                   <button
                     className={styles.queryButton}
-                    onClick={() => onQuerySelect(query.sql)}
+                    onClick={() => handleQuerySelect(query.sql)}
                   >
                     <div className={styles.queryText}>
                       {query.displayName || query.sql}
@@ -142,15 +177,17 @@ export const SavedQueries = ({
                   <div className={styles.actions}>
                     <button
                       className={styles.iconButton}
-                      onClick={() => handleEditStart(query)}
+                      onClick={() => handleEditStart(query.id, query.displayName)}
                       title="Edit name"
+                      disabled={updateQueryMutation.isPending}
                     >
                       <Edit2 size={14} />
                     </button>
                     <button
                       className={styles.iconButton}
-                      onClick={() => onQueryDelete(query.id)}
+                      onClick={() => handleQueryDelete(query.id)}
                       title="Delete query"
+                      disabled={deleteQueryMutation.isPending}
                     >
                       <Trash2 size={14} />
                     </button>

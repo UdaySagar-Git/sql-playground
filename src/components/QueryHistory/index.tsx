@@ -1,25 +1,45 @@
-import { QueryHistory as QueryHistoryType } from "@/types";
 import styles from "./history.module.css";
 import { Trash2, Search } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { toast } from "sonner";
+import { useQueryHistory } from "@/api/useQueries";
+import { useDeleteQueryHistory, useDeleteAllQueryHistory } from "@/api/useDeleteHistory";
+import { useTabs } from "@/api/useTabs";
 
-interface QueryHistoryProps {
-  queries: QueryHistoryType[];
-  onQuerySelect: (query: string) => void;
-  onQueryDelete: (id: string) => void;
-  onClearAll: () => void;
-}
-
-export const QueryHistory = ({
-  queries,
-  onQuerySelect,
-  onQueryDelete,
-  onClearAll
-}: QueryHistoryProps) => {
+export const QueryHistory = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { data: queries, isLoading } = useQueryHistory();
+  const deleteHistoryMutation = useDeleteQueryHistory();
+  const deleteAllHistoryMutation = useDeleteAllQueryHistory();
+  const { updateCurrentTabQuery } = useTabs();
+
+  const handleQueryDelete = useCallback(async (id: string) => {
+    try {
+      await deleteHistoryMutation.mutateAsync(id);
+      toast.success("Query history item deleted");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete query history";
+      toast.error(errorMessage);
+    }
+  }, [deleteHistoryMutation]);
+
+  const handleClearAll = useCallback(async () => {
+    try {
+      await deleteAllHistoryMutation.mutateAsync();
+      toast.success("Query history cleared");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to clear query history";
+      toast.error(errorMessage);
+    }
+  }, [deleteAllHistoryMutation]);
+
+  const handleSelectQuery = useCallback((sql: string) => {
+    updateCurrentTabQuery(sql);
+    toast.success("Query loaded from history");
+  }, [updateCurrentTabQuery]);
 
   const filteredQueries = useMemo(() => {
-    if (!searchTerm.trim()) return queries;
+    if (!searchTerm.trim() || !queries) return queries || [];
 
     const term = searchTerm.toLowerCase();
     return queries.filter(query =>
@@ -35,11 +55,12 @@ export const QueryHistory = ({
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>Query History</h2>
-        {queries.length > 0 && (
+        {queries && queries.length > 0 && (
           <button
             className={styles.clearAllButton}
-            onClick={onClearAll}
+            onClick={handleClearAll}
             title="Clear all history"
+            disabled={deleteAllHistoryMutation.isPending}
           >
             Clear All
           </button>
@@ -60,9 +81,11 @@ export const QueryHistory = ({
       </div>
 
       <div className={styles.list}>
-        {filteredQueries.length === 0 ? (
+        {isLoading ? (
+          <div className={styles.loading}>Loading history...</div>
+        ) : filteredQueries.length === 0 ? (
           <div className={styles.emptyState}>
-            {queries.length === 0
+            {queries && queries.length === 0
               ? "No query history"
               : `No history matching "${searchTerm}"`}
           </div>
@@ -71,7 +94,7 @@ export const QueryHistory = ({
             <div key={query.id} className={styles.queryItem}>
               <button
                 className={styles.queryButton}
-                onClick={() => onQuerySelect(query.sql)}
+                onClick={() => handleSelectQuery(query.sql)}
               >
                 <div className={styles.queryText}>{query.sql}</div>
                 <div className={styles.timestamp}>
@@ -80,8 +103,9 @@ export const QueryHistory = ({
               </button>
               <button
                 className={styles.iconButton}
-                onClick={() => onQueryDelete(query.id)}
+                onClick={() => handleQueryDelete(query.id)}
                 title="Delete query"
+                disabled={deleteHistoryMutation.isPending}
               >
                 <Trash2 size={14} />
               </button>

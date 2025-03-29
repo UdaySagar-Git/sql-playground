@@ -2,13 +2,16 @@
 
 import { ThemeProvider } from "next-themes";
 import { PanelProvider } from "./PanelProvider";
+import { QueryProvider } from "./QueryProvider";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem>
-      <PanelProvider>
-        {children}
-      </PanelProvider>
+      <QueryProvider>
+        <PanelProvider>
+          {children}
+        </PanelProvider>
+      </QueryProvider>
     </ThemeProvider>
   );
 }; 
