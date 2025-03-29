@@ -4,6 +4,7 @@ import { getDB } from "@/lib/sql";
 import { syncTablesWithIndexedDB } from "./tableActions";
 
 const DDL_COMMANDS = /^(CREATE|ALTER|DROP|TRUNCATE)/i;
+const DML_COMMANDS = /^(INSERT|UPDATE|DELETE)/i;
 
 export const executeQuery = async (sql: string): Promise<QueryResult[]> => {
   const db = getDB();
@@ -13,9 +14,11 @@ export const executeQuery = async (sql: string): Promise<QueryResult[]> => {
 
   try {
     const results = db.exec(sql);
-    const isDDL = DDL_COMMANDS.test(sql.trim());
+    const trimmedSql = sql.trim();
+    const isDDL = DDL_COMMANDS.test(trimmedSql);
+    const isDML = DML_COMMANDS.test(trimmedSql);
 
-    if (isDDL) {
+    if (isDDL || isDML) {
       await syncTablesWithIndexedDB();
     }
 
