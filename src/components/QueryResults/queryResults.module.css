@@ -1,10 +1,11 @@
 .tableContainer {
   width: 100%;
-  height: 100%;
   overflow: auto;
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 200px;
 }
 
 .table {
@@ -109,10 +110,210 @@
   font-size: 14px;
 }
 
+.queryResultsContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.paginationControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--background);
+  border-top: 1px solid var(--border-color);
+  font-size: 13px;
+  min-height: 60px;
+  flex-shrink: 0;
+}
+
+.paginationInfo {
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.executionTime {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.paginationActions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.pageSizeSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.pageSizeSelect {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.customPageSizeContainer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.customPageSizeInput {
+  width: 70px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--background);
+}
+
+.customPageSizeInput::-webkit-inner-spin-button,
+.customPageSizeInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.customPageSizeInput[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.customPageSizeButton {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  height: 30px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.customPageSizeButton:hover {
+  background: var(--background-hover);
+}
+
+.exportButton {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  height: 30px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-accent);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.exportButton:hover {
+  background: var(--background-hover);
+  border-color: var(--text-accent);
+}
+
+.pageNavigation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pageInputContainer {
+  display: flex;
+  align-items: center;
+  margin: 0 4px;
+}
+
+.pageInput {
+  width: 40px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--text-primary);
+  background: var(--background);
+}
+
+.pageInput::-webkit-inner-spin-button,
+.pageInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pageInput[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.pageSeparator,
+.totalPages {
+  margin: 0 4px;
+  color: var(--text-primary);
+}
+
+.pageButton {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.pageButton:hover:not(:disabled) {
+  background: var(--background-hover);
+}
+
+.pageButton:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.pageIndicator {
+  padding: 0 8px;
+  color: var(--text-primary);
+  min-width: 80px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .paginationActions {
+    gap: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .tableContainer {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    min-height: 200px;
   }
 
   .tableContainer table {
@@ -121,8 +322,80 @@
 
   .tableContainer th,
   .tableContainer td {
-    padding: 12px 8px;
-    font-size: 14px;
+    padding: 8px 6px;
+    font-size: 12px;
     min-width: 120px;
+  }
+
+  .cell {
+    min-width: 120px;
+    max-width: 120px;
+    font-size: 12px;
+    padding: 8px 6px;
+  }
+
+  .headerCell {
+    min-width: 120px;
+    padding: 8px 6px;
+  }
+
+  .paginationControls {
+    flex-direction: column;
+    height: auto;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .paginationInfo {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .paginationActions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .paginationInfo {
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .executionTime {
+    display: inline;
+  }
+
+  .paginationActions {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .pageSizeSelector {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .customPageSizeContainer {
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .exportButton {
+    margin-top: 8px;
+    width: 100%;
+  }
+
+  .pageNavigation {
+    width: 100%;
+    justify-content: center;
   }
 }

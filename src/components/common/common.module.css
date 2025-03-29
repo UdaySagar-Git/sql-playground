@@ -65,16 +65,6 @@
   min-height: 0;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  padding-right: 4px;
-  padding-bottom: 4px;
-  overflow: visible;
-}
-
 /* Pagination Container */
 .paginationInfoSmall {
   margin: 1px 0 8px 0;
@@ -315,4 +305,11 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Virtuoso Item */
+.virtuosoItem {
+  padding: 4px 0;
+  width: 100%;
+  box-sizing: border-box;
 }

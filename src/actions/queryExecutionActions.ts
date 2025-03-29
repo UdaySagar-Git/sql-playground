@@ -13,7 +13,10 @@ export const executeQuery = async (sql: string): Promise<QueryResult[]> => {
   }
 
   try {
+    const startTime = performance.now();
     const results = db.exec(sql);
+    const executionTime = performance.now() - startTime;
+
     const trimmedSql = sql.trim();
     const isDDL = DDL_COMMANDS.test(trimmedSql);
     const isDML = DML_COMMANDS.test(trimmedSql);
@@ -25,6 +28,7 @@ export const executeQuery = async (sql: string): Promise<QueryResult[]> => {
     return results.map((result) => ({
       columns: result.columns,
       values: result.values.map((row) => row.map(convertSqlValue)),
+      executionTime,
     }));
   } catch (err) {
     console.error("Query execution error:", err);

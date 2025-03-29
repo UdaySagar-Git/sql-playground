@@ -1,4 +1,6 @@
 import { useRef, useEffect } from "react";
+import React from "react";
+import { Virtuoso } from "react-virtuoso";
 import styles from "./common.module.css";
 import { PaginationInfo } from "./PaginationInfo";
 
@@ -33,6 +35,14 @@ export const ListContainer = ({
 }: ListContainerProps) => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  const childrenArray = React.Children.toArray(children);
+
+  const handleEndReached = () => {
+    if (hasNextPage && !isFetchingNextPage && fetchNextPage) {
+      fetchNextPage();
+    }
+  };
 
   useEffect(() => {
     if (loadMoreRef.current && hasNextPage && fetchNextPage) {
@@ -77,15 +87,24 @@ export const ListContainer = ({
             {emptyMessage}
           </div>
         ) : (
-          <div className={styles.list}>
-            {children}
-
-            {hasNextPage && fetchNextPage && (
-              <div ref={loadMoreRef} className={styles["load-more-indicator"]}>
-                {isFetchingNextPage && <span>{loadMoreLabel}</span>}
+          <Virtuoso
+            data={childrenArray}
+            totalCount={childrenArray.length}
+            style={{ height: '100%', width: '100%' }}
+            endReached={handleEndReached}
+            itemContent={(index) => (
+              <div className={styles.virtuosoItem}>
+                {childrenArray[index]}
               </div>
             )}
-          </div>
+            components={{
+              Footer: hasNextPage && isFetchingNextPage ? () => (
+                <div className={styles["load-more-indicator"]}>
+                  <span>{loadMoreLabel}</span>
+                </div>
+              ) : undefined
+            }}
+          />
         )}
       </div>
     </div>

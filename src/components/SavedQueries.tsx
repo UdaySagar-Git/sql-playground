@@ -9,7 +9,7 @@ import { ListContainer } from "./common/ListContainer";
 import { ListItem } from "./common/ListItem";
 import styles from "./common/common.module.css";
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 10;
 
 export const SavedQueries = () => {
   const [editingId, setEditingId] = useState<string | null>(null);

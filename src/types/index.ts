@@ -14,6 +14,7 @@ export interface Table {
 export interface QueryResult {
   columns: string[];
   values: SqlValue[][];
+  executionTime?: number;
 }
 
 export interface Tab {
@@ -47,4 +48,10 @@ export interface PaginationParams {
   limit: number;
   cursor?: string | null;
   searchTerm?: string;
+}
+
+export interface PaginationSettings {
+  currentPage: number;
+  pageSize: number;
+  totalRows: number;
 }
