@@ -1,15 +1,20 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 8px 16px;
   background: var(--background-secondary);
   border-bottom: 1px solid var(--border-color);
   height: 48px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .headerLeft {
-  display: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .headerRight {
@@ -24,7 +29,7 @@
   color: var(--text-primary);
   cursor: pointer;
   padding: 8px;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
@@ -35,18 +40,16 @@
   background: var(--background-hover);
 }
 
+.menuButton:active {
+  transform: scale(0.95);
+}
+
 @media (max-width: 768px) {
   .header {
-    justify-content: space-between;
-  }
-
-  .headerLeft {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 8px 12px;
   }
 
   .menuButton {
-    display: flex;
+    padding: 6px;
   }
 }

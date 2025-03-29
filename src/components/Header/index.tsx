@@ -1,27 +1,20 @@
+"use client";
+
 import { Database, History, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { usePanelState } from "@/providers/PanelProvider";
 import styles from "./header.module.css";
 
-interface HeaderProps {
-  showLeftPanel: boolean;
-  showRightPanel: boolean;
-  onLeftPanelToggle: () => void;
-  onRightPanelToggle: () => void;
-}
+export const Header = () => {
+  const { showLeftPanel, showRightPanel, setShowLeftPanel, setShowRightPanel } = usePanelState();
 
-export const Header = ({
-  showLeftPanel,
-  showRightPanel,
-  onLeftPanelToggle,
-  onRightPanelToggle,
-}: HeaderProps) => {
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
         <button
           className={styles.menuButton}
-          onClick={onLeftPanelToggle}
-          title="Tables & Saved Queries"
+          onClick={() => setShowLeftPanel(!showLeftPanel)}
+          title="Database Tables"
         >
           {showLeftPanel ? <X size={20} /> : <Database size={20} />}
         </button>
@@ -30,7 +23,7 @@ export const Header = ({
         <ThemeToggle />
         <button
           className={styles.menuButton}
-          onClick={onRightPanelToggle}
+          onClick={() => setShowRightPanel(!showRightPanel)}
           title="Query History"
         >
           {showRightPanel ? <X size={20} /> : <History size={20} />}

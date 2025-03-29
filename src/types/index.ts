@@ -3,7 +3,7 @@ import { SqlValue } from "sql.js";
 export interface Tab {
   id: string;
   name: string;
-  query: string;
+  query?: string;
 }
 
 export interface QueryResult {
@@ -32,6 +32,12 @@ export interface QueryHistory {
   sql: string;
   timestamp: Date;
   results?: QueryResult;
+}
+
+export interface QuerySearchOptions {
+  searchTerm?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface SQLServiceInterface {

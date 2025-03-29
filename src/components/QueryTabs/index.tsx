@@ -1,5 +1,5 @@
 import { Tab } from "@/types";
-import styles from "./tabs.module.css";
+import styles from "./queryTabs.module.css";
 import { X, Plus, Play, Save, Trash2 } from "lucide-react";
 
 interface QueryTabsProps {

@@ -1,7 +1,7 @@
-import styles from "./resultTable.module.css";
+import styles from "./queryResults.module.css";
 import { QueryResult } from "@/types";
 
-export const ResultTable = ({ data }: { data: QueryResult | null; }) => {
+export const QueryResults = ({ data }: { data: QueryResult | null; }) => {
   if (!data || !data.columns || !data.values) {
     return <div className={styles.noResults}>No results to display</div>;
   }
@@ -12,7 +12,7 @@ export const ResultTable = ({ data }: { data: QueryResult | null; }) => {
         <thead>
           <tr>
             {data.columns.map((column) => (
-              <th key={column}>
+              <th key={column} title={column}>
                 <div className={styles.columnName}>{column}</div>
               </th>
             ))}
@@ -21,9 +21,17 @@ export const ResultTable = ({ data }: { data: QueryResult | null; }) => {
         <tbody>
           {data.values.map((row, rowIndex) => (
             <tr key={rowIndex}>
-              {row.map((value, colIndex) => (
-                <td key={`${rowIndex}-${colIndex}`}>{value ?? ""}</td>
-              ))}
+              {row.map((value, colIndex) => {
+                const displayValue = value ?? "";
+                return (
+                  <td
+                    key={`${rowIndex}-${colIndex}`}
+                    title={typeof displayValue === 'string' ? displayValue : String(displayValue)}
+                  >
+                    {displayValue}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>

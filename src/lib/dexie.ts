@@ -23,3 +23,5 @@ export class SQLDatabase extends Dexie {
     return this.table("queryHistory");
   }
 }
+
+export const dexieDb = new SQLDatabase();

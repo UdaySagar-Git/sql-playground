@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { Providers } from "@/providers";
 import "@/styles/globals.css";
+import { Toaster } from "sonner";
+import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Next.js App",
-  description: "Created with Next.js",
+  title: "SQL Playground",
+  description:
+    "A complete SQL playground solution that works entirely offline",
 };
 
 export default function RootLayout({
@@ -15,7 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
+        <Toaster />
       </body>
     </html>
   );

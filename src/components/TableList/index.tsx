@@ -1,17 +1,17 @@
 import styles from "./tableList.module.css";
 import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
 import { useState, useCallback } from "react";
-import { SQLService } from "@/lib/sql";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Table } from "@/types";
+import { toast } from "sonner";
+import { getTables } from "@/actions/tables";
 
 interface TableListProps {
   onTableSelect: (tableName: string) => void;
   onColumnSelect: (tableName: string, columnName: string) => void;
-  sqlService: SQLService;
 }
 
-export const TableList = ({ onTableSelect, onColumnSelect, sqlService }: TableListProps) => {
+export const TableList = ({ onTableSelect, onColumnSelect }: TableListProps) => {
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +19,7 @@ export const TableList = ({ onTableSelect, onColumnSelect, sqlService }: TableLi
   const tables = useLiveQuery(
     async () => {
       try {
-        return await sqlService.getTables();
+        return await getTables();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load tables");
         return [];
@@ -45,21 +45,26 @@ export const TableList = ({ onTableSelect, onColumnSelect, sqlService }: TableLi
     setIsRefreshing(true);
     setError(null);
     try {
-      await sqlService.getTables();
+      await getTables();
+      toast.success("Tables refreshed successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to refresh tables");
+      const errorMessage = err instanceof Error ? err.message : "Failed to refresh tables";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsRefreshing(false);
     }
-  }, [sqlService]);
+  }, []);
 
   const handleTableClick = useCallback((e: React.MouseEvent, tableName: string) => {
     e.stopPropagation();
     onTableSelect(tableName);
+    toast.success(`Selected table: ${tableName}`);
   }, [onTableSelect]);
 
   const handleColumnClick = useCallback((tableName: string, columnName: string) => {
     onColumnSelect(tableName, columnName);
+    toast.success(`Selected column: ${columnName} from ${tableName}`);
   }, [onColumnSelect]);
 
   const renderTableColumns = useCallback((table: Table) => (

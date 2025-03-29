@@ -1,19 +1,21 @@
 "use client";
 
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { TableList } from "@/components/TableList/TableList";
+import { TableList } from "@/components/TableList";
 import { MonacoEditor } from "@/components/Editor/MonacoEditor";
-import { QueryHistory } from "@/components/QueryHistory/QueryHistory";
-import { ResultTable } from "@/components/QueryResults/ResultTable";
-import { SavedQueries } from "@/components/SavedQueries/SavedQueries";
-import { QueryTabs } from "@/components/QueryTabs/QueryTabs";
-import { Header } from "@/components/Header/Header";
+import { QueryHistory } from "@/components/QueryHistory";
+import { QueryResults } from "@/components/QueryResults";
+import { SavedQueries } from "@/components/SavedQueries";
+import { QueryTabs } from "@/components/QueryTabs";
 import { mockQueries } from "@/mock";
 import { useState, useEffect, useCallback } from "react";
 import styles from "./page.module.css";
-import { useMobile } from "@/hooks/useMobile";
 import { Tab, QueryResult, SavedQuery, QueryHistory as QueryHistoryItem } from "@/types";
-import { SQLService } from "@/lib/sql";
+import { toast } from "sonner";
+import { usePanelState } from "@/providers/PanelProvider";
+import { initializeSQLService } from "@/actions/tables";
+import { executeQuery, saveQuery, updateQuery, deleteQuery, saveQueryHistory, getSavedQueries, getQueryHistory } from "@/actions/queries";
+import { deleteQueryHistory, deleteAllQueryHistory } from "@/actions/queryHistory";
 
 const INITIAL_TAB: Tab = { id: "1", name: "Query 1", query: "" };
 
@@ -24,10 +26,7 @@ export default function Home() {
   const [queryResults, setQueryResults] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const isMobile = useMobile();
-  const [showLeftPanel, setShowLeftPanel] = useState(false);
-  const [showRightPanel, setShowRightPanel] = useState(false);
-  const [sqlService, setSqlService] = useState<SQLService | null>(null);
+  const { showLeftPanel, showRightPanel, setShowLeftPanel, setShowRightPanel } = usePanelState();
   const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initError, setInitError] = useState<string | null>(null);
@@ -37,13 +36,11 @@ export default function Home() {
       try {
         setIsInitializing(true);
         setInitError(null);
-        const service = new SQLService();
-        const success = await service.initialize();
+        const success = await initializeSQLService();
         if (success) {
-          setSqlService(service);
           const [savedQueries, history] = await Promise.all([
-            service.getSavedQueries(),
-            service.getQueryHistory()
+            getSavedQueries(),
+            getQueryHistory()
           ]);
           setSavedQueries(savedQueries);
           setQueryHistory(history);
@@ -71,24 +68,22 @@ export default function Home() {
 
   const handleTableSelect = useCallback((tableName: string) => {
     updateCurrentTabQuery(`SELECT * FROM ${tableName};`);
-    if (isMobile) setShowLeftPanel(false);
-  }, [isMobile, updateCurrentTabQuery]);
+    setShowLeftPanel(false);
+  }, [updateCurrentTabQuery, setShowLeftPanel]);
 
   const handleColumnSelect = useCallback((tableName: string, columnName: string) => {
     updateCurrentTabQuery(`SELECT ${columnName} FROM ${tableName};`);
-    if (isMobile) setShowLeftPanel(false);
-  }, [isMobile, updateCurrentTabQuery]);
+    setShowLeftPanel(false);
+  }, [updateCurrentTabQuery, setShowLeftPanel]);
 
   const handleQuerySelect = useCallback((query: string) => {
     updateCurrentTabQuery(query);
-    if (isMobile) setShowRightPanel(false);
-  }, [isMobile, updateCurrentTabQuery]);
+    setShowRightPanel(false);
+  }, [updateCurrentTabQuery, setShowRightPanel]);
 
   const handleQueryUpdate = useCallback(async (id: string, displayName: string | undefined) => {
-    if (!sqlService) return;
-
     try {
-      await sqlService.updateQuery(id, displayName);
+      await updateQuery(id, displayName);
       setSavedQueries(prev =>
         prev.map(query =>
           query.id === id
@@ -96,21 +91,62 @@ export default function Home() {
             : query
         )
       );
+      toast.success("Query updated successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update query");
+      const errorMessage = err instanceof Error ? err.message : "Failed to update query";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
-  }, [sqlService]);
+  }, []);
 
   const handleQueryDelete = useCallback(async (id: string) => {
-    if (!sqlService) return;
-
     try {
-      await sqlService.deleteQuery(id);
+      await deleteQuery(id);
       setSavedQueries(prev => prev.filter(q => q.id !== id));
+      toast.success("Query deleted successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete query");
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete query";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
-  }, [sqlService]);
+  }, []);
+
+  const handleQueryHistoryDelete = useCallback(async (id: string) => {
+    try {
+      await deleteQueryHistory(id);
+      setQueryHistory(prev => prev.filter(q => q.id !== id));
+      toast.success("Query history item deleted");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete query history";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
+  }, []);
+
+  const handleClearAllQueryHistory = useCallback(async () => {
+    try {
+      await deleteAllQueryHistory();
+      setQueryHistory([]);
+      toast.success("Query history cleared");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to clear query history";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
+  }, []);
+
+  const handleClearAllSavedQueries = useCallback(async () => {
+    try {
+      const deletePromises = savedQueries.map(query => deleteQuery(query.id));
+      await Promise.all(deletePromises);
+      setSavedQueries([]);
+      toast.success("All saved queries cleared");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to clear saved queries";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    }
+  }, [savedQueries]);
 
   const handleTabSelect = useCallback((id: string) => {
     setActiveTabId(id);
@@ -143,13 +179,18 @@ export default function Home() {
 
   const handleRunQuery = useCallback(async () => {
     const currentTab = tabs.find(tab => tab.id === activeTabId);
-    if (!currentTab || !sqlService) return;
+    if (!currentTab) return;
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const results = await sqlService.executeQuery(currentTab.query);
+      if (!currentTab.query) {
+        toast.error("Please enter a query before executing.");
+        return;
+      }
+
+      const results = await executeQuery(currentTab.query);
       setQueryResults(results[0]);
       const historyEntry: QueryHistoryItem = {
         id: Date.now().toString(),
@@ -157,22 +198,25 @@ export default function Home() {
         timestamp: new Date(),
         results: results[0]
       };
-      await sqlService.saveQueryHistory(historyEntry);
+      await saveQueryHistory(historyEntry);
       setQueryHistory(prev => [historyEntry, ...prev]);
+      toast.success("Query executed successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred while executing the query");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred while executing the query";
+      setError(errorMessage);
       setQueryResults(null);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [activeTabId, tabs, sqlService]);
+  }, [activeTabId, tabs]);
 
   const handleSaveQuery = useCallback(async () => {
     const currentTab = tabs.find(tab => tab.id === activeTabId);
-    if (!currentTab || !sqlService) return;
+    if (!currentTab) return;
 
-    if (currentTab.query === "") {
-      alert("Please enter a query before saving.");
+    if (!currentTab.query) {
+      toast.error("Please enter a query before saving.");
       return;
     }
 
@@ -183,17 +227,20 @@ export default function Home() {
         timestamp: new Date()
       };
 
-      await sqlService.saveQuery(newQuery);
+      await saveQuery(newQuery);
       setSavedQueries(prev => [...prev, newQuery]);
+      toast.success("Query saved successfully");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save query");
+      toast.error("Failed to save query");
     }
-  }, [activeTabId, tabs, sqlService]);
+  }, [activeTabId, tabs]);
 
   const handleClear = useCallback(() => {
     updateCurrentTabQuery("");
     setQueryResults(null);
     setError(null);
+    toast.success("Editor cleared");
   }, [updateCurrentTabQuery]);
 
   const currentTab = tabs.find(tab => tab.id === activeTabId);
@@ -214,12 +261,6 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <Header
-        showLeftPanel={showLeftPanel}
-        showRightPanel={showRightPanel}
-        onLeftPanelToggle={() => setShowLeftPanel(!showLeftPanel)}
-        onRightPanelToggle={() => setShowRightPanel(!showRightPanel)}
-      />
       <PanelGroup direction="horizontal" className={styles.panelGroup}>
         <Panel
           defaultSize={20}
@@ -228,13 +269,10 @@ export default function Home() {
         >
           <PanelGroup direction="vertical" className={styles.leftPanelGroup}>
             <Panel defaultSize={60} minSize={30} className={styles.leftPanel}>
-              {sqlService && (
-                <TableList
-                  sqlService={sqlService}
-                  onTableSelect={handleTableSelect}
-                  onColumnSelect={handleColumnSelect}
-                />
-              )}
+              <TableList
+                onTableSelect={handleTableSelect}
+                onColumnSelect={handleColumnSelect}
+              />
             </Panel>
             <PanelResizeHandle className={styles.leftResizeHandle} />
             <Panel defaultSize={40} minSize={20} className={styles.leftPanel}>
@@ -243,6 +281,7 @@ export default function Home() {
                 onQuerySelect={handleQuerySelect}
                 onQueryUpdate={handleQueryUpdate}
                 onQueryDelete={handleQueryDelete}
+                onClearAll={handleClearAllSavedQueries}
               />
             </Panel>
           </PanelGroup>
@@ -274,7 +313,7 @@ export default function Home() {
                 ) : error ? (
                   <div className={styles.error}>{error}</div>
                 ) : (
-                  <ResultTable data={queryResults} />
+                  <QueryResults data={queryResults} />
                 )}
               </Panel>
             </PanelGroup>
@@ -286,7 +325,12 @@ export default function Home() {
           minSize={15}
           className={`${styles.panel} ${showRightPanel ? styles.active : ''}`}
         >
-          <QueryHistory queries={queryHistory} onQuerySelect={handleQuerySelect} />
+          <QueryHistory
+            queries={queryHistory}
+            onQuerySelect={handleQuerySelect}
+            onQueryDelete={handleQueryHistoryDelete}
+            onClearAll={handleClearAllQueryHistory}
+          />
         </Panel>
       </PanelGroup>
     </div>
