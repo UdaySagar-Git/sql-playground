@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getTables, initializeSQLService } from "@/actions/tables";
-import { QUERY_KEYS } from "@/lib/queryClient";
-import { executeQuery } from "@/actions/queries";
+import { getTables, initializeSQLService } from "@/actions/tableActions";
+import { QUERY_KEYS } from "@/lib/constants";
+import { executeQuery } from "@/actions/queryExecutionActions";
 import { Table } from "@/types";
 
 export function useTables() {

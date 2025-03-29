@@ -1,12 +1,4 @@
-.container {
-  padding: 16px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: var(--background-secondary);
-}
-
+/* Header */
 .header {
   display: flex;
   justify-content: space-between;
@@ -23,18 +15,24 @@
 
 .clearAllButton {
   font-size: 12px;
-  color: var(--text-danger);
   background: none;
   border: none;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
+  color: var(--text-secondary);
 }
 
 .clearAllButton:hover {
   background: var(--background-hover);
 }
 
+.clearAllButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* List Container */
 .list {
   display: flex;
   flex-direction: column;
@@ -42,7 +40,8 @@
   overflow-y: auto;
 }
 
-.queryItem {
+/* List Item */
+.listItem {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -52,7 +51,7 @@
   min-width: 0;
 }
 
-.queryButton {
+.itemButton {
   flex: 1;
   text-align: left;
   background: none;
@@ -65,11 +64,11 @@
   width: 100%;
 }
 
-.queryButton:hover {
+.itemButton:hover {
   background: var(--background-hover);
 }
 
-.queryText {
+.itemTitle {
   font-family: "SF Mono", "Consolas", monospace;
   font-size: 12px;
   margin-bottom: 4px;
@@ -80,7 +79,7 @@
   max-width: 100%;
 }
 
-.timestamp {
+.itemSubtitle {
   font-size: 10px;
   color: var(--text-secondary);
   font-family: "SF Mono", "Consolas", monospace;
@@ -90,7 +89,8 @@
   max-width: 100%;
 }
 
-.actions {
+/* Action Buttons */
+.itemActions {
   display: flex;
   gap: 4px;
   padding-right: 4px;
@@ -119,6 +119,7 @@
   color: var(--text-danger);
 }
 
+/* Edit Mode */
 .editContainer {
   flex: 1;
   display: flex;
@@ -150,6 +151,16 @@
   flex-shrink: 0;
 }
 
+/* State Indicator */
+.loading {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 12px;
+  font-size: 12px;
+  background: var(--background-tertiary);
+  border-radius: 4px;
+}
+
 .emptyState {
   font-size: 12px;
   color: var(--text-secondary);
@@ -159,7 +170,7 @@
   border-radius: 4px;
 }
 
-/* todo : remove the common styles , move to other file */
+/* Search */
 .searchContainer {
   margin-bottom: 8px;
 }

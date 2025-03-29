@@ -1,7 +1,7 @@
 import { Editor } from "@monaco-editor/react";
 import styles from "./editor.module.css";
-import { useCurrentQuery } from "@/api/useCurrentQuery";
-import { useTabs } from "@/api/useTabs";
+import { useCurrentQuery } from "@/api/useQueryEditor";
+import { useTabs } from "@/api/useQueryTabs";
 
 export const MonacoEditor = () => {
   const { data: currentQuery = "" } = useCurrentQuery();

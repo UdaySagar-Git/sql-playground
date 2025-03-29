@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "test": "npm run build && npm run start",
+    "production-test": "npm run build && npm run start",
     "lint": "next lint"
   },
   "dependencies": {

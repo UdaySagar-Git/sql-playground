@@ -1,9 +1,10 @@
-import { Plus, Play, Save, Trash2, X } from "lucide-react";
 import styles from "./queryTabs.module.css";
-import { useTabs } from "@/api/useTabs";
-import { useExecuteQuery, useSaveQuery } from "@/api/useQueries";
-import { useCurrentQuery } from "@/api/useCurrentQuery";
+import { useTabs } from "@/api/useQueryTabs";
+import { useExecuteQuery, useSaveQuery } from "@/api/useQueryOperations";
+import { useCurrentQuery } from "@/api/useQueryEditor";
 import { toast } from "sonner";
+import { TabsList } from "./TabsList";
+import { ActionButtons } from "./ActionButtons";
 
 export const QueryTabs = () => {
   const {
@@ -67,51 +68,20 @@ export const QueryTabs = () => {
 
   return (
     <div className={styles.tabsContainer}>
-      <div className={styles.tabsList}>
-        {tabs.map((tab) => (
-          <div
-            key={tab.id}
-            className={`${styles.tab} ${activeTabId === tab.id ? styles.activeTab : ""}`}
-          >
-            <button
-              className={styles.tabButton}
-              onClick={() => handleTabSelect(tab.id)}
-            >
-              {tab.name}
-            </button>
-            <button
-              className={styles.closeButton}
-              onClick={() => handleTabClose(tab.id)}
-            >
-              <X size={14} />
-            </button>
-          </div>
-        ))}
-        <button className={styles.addTabButton} onClick={handleNewTab}>
-          <Plus size={14} />
-        </button>
-      </div>
-      <div className={styles.actionButtons}>
-        <button
-          className={`${styles.runButton} ${executeQueryMutation.isPending ? styles.loading : ''}`}
-          onClick={handleRunQuery}
-          disabled={executeQueryMutation.isPending}
-        >
-          <Play size={14} className={styles.runIcon} />
-          {executeQueryMutation.isPending ? 'Running...' : 'Run'}
-        </button>
-        <button
-          className={styles.iconButton}
-          onClick={handleSaveQuery}
-          title="Save Query"
-          disabled={saveQueryMutation.isPending}
-        >
-          <Save size={16} />
-        </button>
-        <button className={styles.iconButton} onClick={handleClear} title="Clear">
-          <Trash2 size={16} />
-        </button>
-      </div>
+      <TabsList
+        tabs={tabs}
+        activeTabId={activeTabId}
+        onTabSelect={handleTabSelect}
+        onTabClose={handleTabClose}
+        onNewTab={handleNewTab}
+      />
+      <ActionButtons
+        onRunQuery={handleRunQuery}
+        onSaveQuery={handleSaveQuery}
+        onClear={handleClear}
+        isRunning={executeQueryMutation.isPending}
+        isSaving={saveQueryMutation.isPending}
+      />
     </div>
   );
 }; 

@@ -1,26 +1,16 @@
 import styles from "./tableList.module.css";
-import { ChevronDown, ChevronRight, RefreshCw } from "lucide-react";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { useTables, useRefreshTables } from "@/api/useTables";
-import { queryClient, QUERY_KEYS } from "@/lib/queryClient";
+import { useTables, useRefreshTables } from "@/api/useDatabaseTables";
+import { useSetCurrentQuery } from "@/api/useQueryEditor";
+import { TableHeader } from "./TableHeader";
+import { TableItem } from "./TableItem";
 
 export const TableList = () => {
-  const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
+  const [openTable, setOpenTable] = useState<string | null>(null);
   const { data: tables = [], isLoading, isError, error } = useTables();
   const refreshTablesMutation = useRefreshTables();
-
-  const toggleTable = useCallback((tableName: string) => {
-    setExpandedTables(prev => {
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(tableName)) {
-        newExpanded.delete(tableName);
-      } else {
-        newExpanded.add(tableName);
-      }
-      return newExpanded;
-    });
-  }, []);
+  const setCurrentQuery = useSetCurrentQuery();
 
   const handleRefresh = useCallback(async () => {
     try {
@@ -34,63 +24,23 @@ export const TableList = () => {
 
   const handleTableClick = useCallback((e: React.MouseEvent, tableName: string) => {
     e.stopPropagation();
-    queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], `SELECT * FROM ${tableName};`);
+    setCurrentQuery(`SELECT * FROM ${tableName};`);
     toast.success(`Selected table: ${tableName}`);
-  }, []);
+  }, [setCurrentQuery]);
 
   const handleColumnClick = useCallback((e: React.MouseEvent, tableName: string, columnName: string) => {
     e.stopPropagation();
-    queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], `SELECT ${columnName} FROM ${tableName};`);
+    setCurrentQuery(`SELECT ${columnName} FROM ${tableName};`);
     toast.success(`Selected column: ${columnName} from ${tableName}`);
-  }, []);
-
-  const renderTableColumns = useCallback((table: typeof tables[0]) => (
-    <div className={styles.columnsList}>
-      {table.columns.map((column) => (
-        <div
-          key={column.name}
-          className={styles.columnItem}
-          onClick={(e) => handleColumnClick(e, table.name, column.name)}
-        >
-          <span className={styles.columnName}>{column.name}</span>
-          <span className={styles.columnType}>{column.type}</span>
-        </div>
-      ))}
-    </div>
-  ), [handleColumnClick]);
-
-  const renderTable = useCallback((table: typeof tables[0]) => (
-    <div key={table.name} className={styles.tableWrapper}>
-      <div className={styles.tableHeader} onClick={() => toggleTable(table.name)}>
-        {expandedTables.has(table.name) ? (
-          <ChevronDown className={styles.chevron} />
-        ) : (
-          <ChevronRight className={styles.chevron} />
-        )}
-        <button
-          className={styles.tableItem}
-          onClick={(e) => handleTableClick(e, table.name)}
-        >
-          {table.name}
-        </button>
-      </div>
-      {expandedTables.has(table.name) && renderTableColumns(table)}
-    </div>
-  ), [expandedTables, toggleTable, handleTableClick, renderTableColumns]);
+  }, [setCurrentQuery]);
 
   if (isError) {
     return (
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>Tables</h2>
-          <button
-            className={styles.refreshButton}
-            onClick={handleRefresh}
-            disabled={refreshTablesMutation.isPending}
-          >
-            <RefreshCw className={`${styles.refreshIcon} ${refreshTablesMutation.isPending ? styles.spinning : ''}`} />
-          </button>
-        </div>
+        <TableHeader
+          onRefresh={handleRefresh}
+          isRefreshing={refreshTablesMutation.isPending}
+        />
         <div className={styles.error}>{error instanceof Error ? error.message : "Failed to load tables"}</div>
       </div>
     );
@@ -98,23 +48,27 @@ export const TableList = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>Tables</h2>
-        <button
-          className={styles.refreshButton}
-          onClick={handleRefresh}
-          disabled={refreshTablesMutation.isPending}
-        >
-          <RefreshCw className={`${styles.refreshIcon} ${refreshTablesMutation.isPending ? styles.spinning : ''}`} />
-        </button>
-      </div>
+      <TableHeader
+        onRefresh={handleRefresh}
+        isRefreshing={refreshTablesMutation.isPending}
+      />
       {isLoading ? (
         <div className={styles.loading}>Loading tables...</div>
       ) : tables.length === 0 ? (
         <div className={styles.noTables}>No tables available</div>
       ) : (
         <div className={styles.list}>
-          {tables.map(renderTable)}
+          {tables.map((table) => (
+            <TableItem
+              key={table.name}
+              name={table.name}
+              columns={table.columns}
+              isExpanded={openTable === table.name}
+              onToggle={() => setOpenTable(openTable === table.name ? null : table.name)}
+              onTableClick={handleTableClick}
+              onColumnClick={handleColumnClick}
+            />
+          ))}
         </div>
       )}
     </div>

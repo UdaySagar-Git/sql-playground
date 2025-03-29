@@ -10,8 +10,9 @@ import { QueryTabs } from "@/components/QueryTabs";
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { usePanelState } from "@/providers/PanelProvider";
-import { initializeSQLService } from "@/actions/tables";
-import { queryClient, QUERY_KEYS } from "@/lib/queryClient";
+import { initializeSQLService } from "@/actions/tableActions";
+import { queryClient } from "@/lib/queryClient";
+import { QUERY_KEYS } from "@/lib/constants";
 import { resetDB } from "@/lib/sql";
 
 export default function Home() {

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Tab } from "@/types";
-import { queryClient, QUERY_KEYS } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
+import { QUERY_KEYS } from "@/lib/constants";
 
 const INITIAL_TAB: Tab = { id: "1", name: "Query 1", query: "" };
 

@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/lib/queryClient";
+import { QUERY_KEYS } from "@/lib/constants";
 
 export function useCurrentQuery() {
   return useQuery<string>({
     queryKey: [QUERY_KEYS.CURRENT_QUERY],
-    initialData: "",
+    initialData: "select * from customers",
   });
 }
 

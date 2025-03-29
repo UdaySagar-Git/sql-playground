@@ -1,16 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  executeQuery,
   saveQuery,
   updateQuery,
   getSavedQueries,
   deleteQuery,
+} from "@/actions/queryActions";
+import { executeQuery } from "@/actions/queryExecutionActions";
+import {
   saveQueryHistory,
   getQueryHistory,
-} from "@/actions/queries";
+} from "@/actions/queryHistoryActions";
 import { SavedQuery, QueryHistory, QueryResult } from "@/types";
-import { QUERY_KEYS } from "@/lib/queryClient";
-
+import { QUERY_KEYS } from "@/lib/constants";
 
 export function useSavedQueries() {
   return useQuery({

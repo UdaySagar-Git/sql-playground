@@ -1,7 +1,5 @@
 import { QueryHistory } from "@/types";
-import { SQLDatabase } from "@/lib/dexie";
-
-const dexieDb = new SQLDatabase();
+import { dexieDb } from "@/lib/dexie";
 
 export const saveQueryHistory = async (
   history: QueryHistory

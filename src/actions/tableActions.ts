@@ -1,4 +1,5 @@
 import { Table } from "@/types";
+import { SqlValue } from "sql.js";
 import { dexieDb } from "@/lib/dexie";
 import { getDB, initializeSQL, resetDB } from "@/lib/sql";
 import { mockTables } from "@/mock/tables";
@@ -14,6 +15,20 @@ export const initializeSQLService = async (): Promise<boolean> => {
   } catch {
     resetDB();
     return false;
+  }
+};
+
+export const getTables = async (): Promise<Table[]> => {
+  try {
+    const db = getDB();
+    if (!db) {
+      await initializeSQL();
+    }
+
+    const tables = await dexieDb.tablesTable.toArray();
+    return tables.sort((a, b) => a.name.localeCompare(b.name));
+  } catch (err) {
+    throw err;
   }
 };
 
@@ -87,16 +102,49 @@ const formatSqlValue = (val: unknown): string => {
   return String(val);
 };
 
-export const getTables = async (): Promise<Table[]> => {
-  try {
-    const db = getDB();
-    if (!db) {
-      await initializeSQL();
-    }
+export const syncTablesWithIndexedDB = async (): Promise<void> => {
+  const db = getDB();
+  if (!db) return;
 
-    const tables = await dexieDb.tablesTable.toArray();
-    return tables.sort((a, b) => a.name.localeCompare(b.name));
-  } catch (err) {
-    throw err;
+  const tablesResult = db.exec(
+    "SELECT name FROM sqlite_master WHERE type='table'"
+  );
+  const tableNames = tablesResult[0]?.values.map((row) => String(row[0])) || [];
+
+  await dexieDb.tablesTable.clear();
+
+  for (const tableName of tableNames) {
+    const tableInfo = await getTableInfo(tableName);
+    await dexieDb.tablesTable.put(tableInfo);
   }
+};
+
+export const getTableInfo = async (tableName: string): Promise<Table> => {
+  const db = getDB();
+  if (!db) throw new Error("Database not initialized");
+
+  const tableInfo = db.exec(`PRAGMA table_info(${tableName})`);
+  const columns = tableInfo[0].values.map((row) => {
+    return {
+      name: String(row[1]),
+      type: String(row[2]),
+    };
+  });
+
+  const dataResult = db.exec(`SELECT * FROM ${tableName}`);
+  const values = dataResult[0]?.values || [];
+
+  const objectData = values.map((row) => {
+    const obj: Record<string, SqlValue> = {};
+    columns.forEach((col, index) => {
+      obj[col.name] = row[index] as SqlValue;
+    });
+    return obj;
+  });
+
+  return {
+    name: tableName,
+    columns,
+    data: objectData,
+  };
 };

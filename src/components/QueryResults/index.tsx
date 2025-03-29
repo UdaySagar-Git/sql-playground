@@ -1,6 +1,6 @@
 import styles from "./queryResults.module.css";
 import { useRef } from "react";
-import { useQueryResults } from "@/api/useQueries";
+import { useQueryResults } from "@/api/useQueryOperations";
 import { SqlValue } from "sql.js";
 
 export const QueryResults = () => {

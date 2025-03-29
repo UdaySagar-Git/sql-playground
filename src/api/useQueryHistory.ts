@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   deleteQueryHistory,
   deleteAllQueryHistory,
-} from "@/actions/queryHistory";
-import { QUERY_KEYS } from "@/lib/queryClient";
+} from "@/actions/queryHistoryActions";
+import { QUERY_KEYS } from "@/lib/constants";
 
 export function useDeleteQueryHistory() {
   const queryClient = useQueryClient();
