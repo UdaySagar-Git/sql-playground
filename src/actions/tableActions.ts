@@ -2,18 +2,68 @@ import { Table } from "@/types";
 import { SqlValue } from "sql.js";
 import { getDB, initializeSQL, resetDB } from "@/lib/sql";
 import { mockTables } from "@/mock/tables";
+import { dexieDb } from "@/lib/dexie";
+import { generateId } from "@/lib/utils";
+import { sqlFiles } from "@/mock/datasets";
+import { SAMPLE_QUERY1, SAMPLE_QUERY2 } from "@/lib/constants";
 
 export const initializeSQLService = async (): Promise<boolean> => {
   try {
     const success = await initializeSQL();
     if (success) {
       await initializeTables();
+      await initializeSavedQueries();
       return true;
     }
     return false;
   } catch {
     resetDB();
     return false;
+  }
+};
+
+const initializeSavedQueries = async (): Promise<void> => {
+  try {
+    const count = await dexieDb.savedQueriesTable.count();
+
+    if (count === 0) {
+      await dexieDb.savedQueriesTable.add({
+        id: generateId(),
+        sql: SAMPLE_QUERY1,
+        displayName: "Sample Employee Query",
+        timestamp: new Date(),
+      });
+
+      await dexieDb.savedQueriesTable.add({
+        id: generateId(),
+        sql: SAMPLE_QUERY2,
+        displayName: "Generate 100000 rows",
+        timestamp: new Date(),
+      });
+
+      const promises = Object.entries(sqlFiles).map(
+        async ([sqlFileKey, sqlContent]) => {
+          const displayName = `Create ${sqlFileKey}`;
+          try {
+            await dexieDb.savedQueriesTable.add({
+              id: generateId(),
+              sql: sqlContent,
+              displayName,
+              timestamp: new Date(),
+            });
+          } catch (err) {
+            console.error(
+              `Error creating query history for ${sqlFileKey}:`,
+              err
+            );
+          }
+        }
+      );
+
+      await Promise.all(promises);
+    }
+  } catch (err) {
+    console.error("Failed to initialize saved queries:", err);
   }
 };
 

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS customers;
+export const query = `DROP TABLE IF EXISTS customers;
 
 CREATE TABLE customers (
     customerID	VARCHAR(512),
@@ -105,4 +105,4 @@ INSERT INTO customers (customerID, companyName, contactName, contactTitle, addre
 	('WELLI', 'Wellington Importadora', 'Paula Parente', 'Sales Manager', 'Rua do Mercado 12', 'Resende', 'SP', '08737-363', 'Brazil', '(14) 555-8122', NULL),
 	('WHITC', 'White Clover Markets', 'Karl Jablonski', 'Owner', '305 - 14th Ave. S. Suite 3B', 'Seattle', 'WA', '98128', 'USA', '(206) 555-4112', '(206) 555-4115'),
 	('WILMK', 'Wilman Kala', 'Matti Karttunen', 'Owner/Marketing Assistant', 'Keskuskatu 45', 'Helsinki', NULL, '21240', 'Finland', '90-224 8858', '90-224 8858'),
-	('WOLZA', 'Wolski  Zajazd', 'Zbyszek Piestrzeniewicz', 'Owner', 'ul. Filtrowa 68', 'Warszawa', NULL, '01-012', 'Poland', '(26) 642-7012', '(26) 642-7012');
+	('WOLZA', 'Wolski  Zajazd', 'Zbyszek Piestrzeniewicz', 'Owner', 'ul. Filtrowa 68', 'Warszawa', NULL, '01-012', 'Poland', '(26) 642-7012', '(26) 642-7012');`

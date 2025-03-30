@@ -1,4 +1,5 @@
-<!-- ref: https://github.com/graphql-compose/graphql-compose-examples/tree/master/examples/northwind/data/csv -->
+<!-- source:
+https://github.com/graphql-compose/graphql-compose-examples/tree/master/examples/northwind/data/csv -->
 
 ### Employees
 

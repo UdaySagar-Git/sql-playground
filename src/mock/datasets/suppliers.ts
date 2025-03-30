@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS suppliers;
+export const query = `DROP TABLE IF EXISTS suppliers;
 
 CREATE TABLE suppliers (
     supplierID	INT,
@@ -44,4 +44,4 @@ INSERT INTO suppliers (supplierID, companyName, contactName, contactTitle, addre
 	('26', 'Pasta Buttini s.r.l.', 'Giovanni Giudici', 'Order Administrator', 'Via dei Gelsomini 153', 'Salerno', NULL, '84100', 'Italy', '(089) 6547665', '(089) 6547667', NULL),
 	('27', 'Escargots Nouveaux', 'Marie Delamare', 'Sales Manager', '22 rue H. Voiron', 'Montceau', NULL, '71300', 'France', '85.57.00.07', NULL, NULL),
 	('28', 'Gai pâturage', 'Eliane Noz', 'Sales Representative', 'Bat. B 3 rue des Alpes', 'Annecy', NULL, '74000', 'France', '38.76.98.06', '38.76.98.58', NULL),
-	('29', 'Forêts dérables', 'Chantal Goulet', 'Accounting Manager', '148 rue Chasseur', 'Ste-Hyacinthe', 'Québec', 'J2S 7S8', 'Canada', '(514) 555-2955', '(514) 555-2921', NULL);
+	('29', 'Forêts dérables', 'Chantal Goulet', 'Accounting Manager', '148 rue Chasseur', 'Ste-Hyacinthe', 'Québec', 'J2S 7S8', 'Canada', '(514) 555-2955', '(514) 555-2921', NULL);`;

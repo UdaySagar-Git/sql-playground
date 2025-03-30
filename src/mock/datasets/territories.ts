@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS territories;
+export const query = `DROP TABLE IF EXISTS territories;
 
 CREATE TABLE territories (
     territoryID	INT,
@@ -59,4 +59,4 @@ INSERT INTO territories (territoryID, territoryDescription, regionID) VALUES
 	('95060', 'SantaCruz', '2'),
 	('98004', 'Bellevue', '2'),
 	('98052', 'Redmond', '2'),
-	('98104', 'Seattle', '2');
+	('98104', 'Seattle', '2');`;

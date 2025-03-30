@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS order_details;
+export const query = `DROP TABLE IF EXISTS order_details;
 
 CREATE TABLE order_details (
     orderID	INT,
@@ -2163,4 +2163,4 @@ INSERT INTO order_details (orderID, productID, unitPrice, quantity, discount) VA
 	('11077', '66', '17.00', '1', '0'),
 	('11077', '73', '15.00', '2', '0.01'),
 	('11077', '75', '7.75', '4', '0'),
-	('11077', '77', '13.00', '2', '0');
+	('11077', '77', '13.00', '2', '0');`;

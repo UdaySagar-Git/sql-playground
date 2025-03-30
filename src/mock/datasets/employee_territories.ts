@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS employee_territories;
+export const query = `DROP TABLE IF EXISTS employee_territories;
 
 CREATE TABLE employee_territories (
     employeeID	INT,
@@ -54,4 +54,4 @@ INSERT INTO employee_territories (employeeID, territoryID) VALUES
 	('9', '48084'),
 	('9', '48304'),
 	('9', '55113'),
-	('9', '55439');
+	('9', '55439');`

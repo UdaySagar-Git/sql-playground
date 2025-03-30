@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS regions;
+export const query = `DROP TABLE IF EXISTS regions;
 
 CREATE TABLE regions (
     regionID	INT,
@@ -9,4 +9,4 @@ INSERT INTO regions (regionID, regionDescription) VALUES
 	('1', 'Eastern'),
 	('2', 'Western'),
 	('3', 'Northern'),
-	('4', 'Southern');
+	('4', 'Southern');`;

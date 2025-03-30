@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS products;
+export const query = `DROP TABLE IF EXISTS products;
 
 CREATE TABLE products (
     productID	INT,
@@ -90,4 +90,4 @@ INSERT INTO products (productID, productName, supplierID, categoryID, quantityPe
 	('74', 'Longlife Tofu', '4', '7', '5 kg pkg.', '10.00', '4', '20', '5', '0'),
 	('75', 'Rhönbräu Klosterbier', '12', '1', '24 - 0.5 l bottles', '7.75', '125', '0', '25', '0'),
 	('76', 'Lakkalikööri', '23', '1', '500 ml', '18.00', '57', '0', '20', '0'),
-	('77', 'Original Frankfurter grüne Soße', '12', '2', '12 boxes', '13.00', '32', '0', '15', '0');
+	('77', 'Original Frankfurter grüne Soße', '12', '2', '12 boxes', '13.00', '32', '0', '15', '0');`;

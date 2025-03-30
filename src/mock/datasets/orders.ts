@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS orders;
+export const query = `DROP TABLE IF EXISTS orders;
 
 CREATE TABLE orders (
     orderID	INT,
@@ -847,4 +847,4 @@ INSERT INTO orders (orderID, customerID, employeeID, orderDate, requiredDate, sh
 	('11074', 'SIMOB', '7', '1998-05-06 00:00:00.000', '1998-06-03 00:00:00.000', NULL, '2', '18.44', 'Simons bistro', 'Vinbæltet 34', 'Kobenhavn', NULL, '1734', 'Denmark'),
 	('11075', 'RICSU', '8', '1998-05-06 00:00:00.000', '1998-06-03 00:00:00.000', NULL, '2', '6.19', 'Richter Supermarkt', 'Starenweg 5', 'Genève', NULL, '1204', 'Switzerland'),
 	('11076', 'BONAP', '4', '1998-05-06 00:00:00.000', '1998-06-03 00:00:00.000', NULL, '2', '38.28', 'Bon app', '12 rue des Bouchers', 'Marseille', NULL, '13008', 'France'),
-	('11077', 'RATTC', '1', '1998-05-06 00:00:00.000', '1998-06-03 00:00:00.000', NULL, '2', '8.53', 'Rattlesnake Canyon Grocery', '2817 Milton Dr.', 'Albuquerque', 'NM', '87110', 'USA');
+	('11077', 'RATTC', '1', '1998-05-06 00:00:00.000', '1998-06-03 00:00:00.000', NULL, '2', '8.53', 'Rattlesnake Canyon Grocery', '2817 Milton Dr.', 'Albuquerque', 'NM', '87110', 'USA');`;
