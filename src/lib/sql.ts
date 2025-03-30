@@ -4,6 +4,12 @@ let dbInstance: Database | null = null;
 let isInitializing = false;
 let initPromise: Promise<boolean> | null = null;
 
+export const lazyInitializeSQL = (): void => {
+  if (!dbInstance && !isInitializing) {
+    initializeSQL().catch(console.error);
+  }
+};
+
 export const initializeSQL = async (): Promise<boolean> => {
   if (isInitializing && initPromise) {
     return initPromise;

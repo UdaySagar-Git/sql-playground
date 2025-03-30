@@ -10,7 +10,9 @@ export const QUERY_KEYS = {
 export const LOCAL_STORAGE_TABS_KEY = "sql-query-tabs";
 export const LOCAL_STORAGE_ACTIVE_TAB_KEY = "sql-query-active-tab";
 
-export const SAMPLE_QUERY1 = `-- Create a employees table
+export const SAMPLE_QUERY1 = "SELECT * FROM employees;";
+
+export const SAMPLE_QUERY2 = `-- Create a employees table
 DROP TABLE IF EXISTS employees;
 CREATE TABLE employees (
   id INTEGER PRIMARY KEY,
@@ -37,7 +39,7 @@ FROM employees
 GROUP BY department
 ORDER BY avg_salary DESC;`;
 
-export const SAMPLE_QUERY2 = `-- Drop table if exists
+export const SAMPLE_QUERY3 = `-- Drop table if exists
 DROP TABLE IF EXISTS categories;
 
 -- Create categories table

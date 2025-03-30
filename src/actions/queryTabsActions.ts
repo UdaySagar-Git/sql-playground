@@ -4,6 +4,7 @@ import {
   LOCAL_STORAGE_TABS_KEY,
   LOCAL_STORAGE_ACTIVE_TAB_KEY,
   SAMPLE_QUERY2,
+  SAMPLE_QUERY3,
 } from "@/lib/constants";
 import { generateId } from "@/lib/utils";
 
@@ -15,6 +16,10 @@ export const INITIAL_TABS: Tab[] = [
   {
     id: generateId(),
     query: SAMPLE_QUERY2,
+  },
+  {
+    id: generateId(),
+    query: SAMPLE_QUERY3,
   },
 ];
 

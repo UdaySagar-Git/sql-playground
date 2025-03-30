@@ -8,9 +8,16 @@ import { sqlFiles } from "@/mock/datasets";
 import { SAMPLE_QUERY1, SAMPLE_QUERY2 } from "@/lib/constants";
 import { mockQueries } from "@/mock/queries";
 
-export const initializeSQLService = async (): Promise<boolean> => {
+export const initializeSQLService = async (
+  skipSQLInit = false
+): Promise<boolean> => {
   try {
-    const success = await initializeSQL();
+    let success = true;
+
+    if (!skipSQLInit) {
+      success = await initializeSQL();
+    }
+
     if (success) {
       await initializeTables();
       await initializeSavedQueries();

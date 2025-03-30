@@ -3,6 +3,7 @@ import { Providers } from "@/providers";
 import "@/styles/globals.css";
 import { Toaster } from "sonner";
 import { Header } from "@/components/Header";
+import { BackgroundInit } from "@/components/BackgroundInit";
 
 export const metadata: Metadata = {
   title: "SQL Playground",
@@ -21,6 +22,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <BackgroundInit />
         </Providers>
         <Toaster />
       </body>

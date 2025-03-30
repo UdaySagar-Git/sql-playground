@@ -13,7 +13,7 @@ import { usePanelState } from "@/providers/PanelProvider";
 import { initializeSQLService } from "@/actions/tableActions";
 import { queryClient } from "@/lib/queryClient";
 import { QUERY_KEYS } from "@/lib/constants";
-import { resetDB } from "@/lib/sql";
+import { resetDB, getDB } from "@/lib/sql";
 
 export default function Home() {
   const [initError, setInitError] = useState<string | null>(null);
@@ -22,26 +22,48 @@ export default function Home() {
   const { showLeftPanel, showRightPanel } = usePanelState();
 
   useEffect(() => {
-    const initSQL = async () => {
+    let isMounted = true;
+
+    const checkAndInitialize = async () => {
       try {
         setIsInitializing(true);
         setInitError(null);
 
-        const success = await initializeSQLService();
+        // fallback 
+        if (getDB()) {
+          const success = await initializeSQLService(true);
+          if (!isMounted) return;
 
-        if (!success) {
-          setInitError(`Failed to initialize SQL service`);
+          if (!success) {
+            setInitError(`Failed to initialize SQL data`);
+          } else {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TABLES] });
+          }
         } else {
-          queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TABLES] });
+          const success = await initializeSQLService();
+          if (!isMounted) return;
+
+          if (!success) {
+            setInitError(`Failed to initialize SQL service`);
+          } else {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TABLES] });
+          }
         }
       } catch (err) {
+        if (!isMounted) return;
         setInitError(err instanceof Error ? err.message : "Failed to initialize application");
       } finally {
-        setIsInitializing(false);
+        if (isMounted) {
+          setIsInitializing(false);
+        }
       }
     };
 
-    initSQL();
+    checkAndInitialize();
+
+    return () => {
+      isMounted = false;
+    };
   }, [retryCount]);
 
   const handleRetry = () => {
