@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getTables, initializeSQLService } from "@/actions/tableActions";
+import {
+  getTables,
+  initializeSQLService,
+  getTablesFromDB,
+} from "@/actions/tableActions";
 import { QUERY_KEYS } from "@/lib/constants";
 import { executeQuery } from "@/actions/queryExecutionActions";
 import { Table } from "@/types";
@@ -15,9 +19,11 @@ export function useRefreshTables() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: getTables,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TABLES] });
+    mutationFn: async () => {
+      return getTablesFromDB();
+    },
+    onSuccess: (tables) => {
+      queryClient.setQueryData([QUERY_KEYS.TABLES], tables);
     },
   });
 }
@@ -29,7 +35,8 @@ export function useInitializeSQL() {
     mutationFn: initializeSQLService,
     onSuccess: (success) => {
       if (success) {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TABLES] });
+        const tables = getTablesFromDB();
+        queryClient.setQueryData([QUERY_KEYS.TABLES], tables);
       }
     },
   });

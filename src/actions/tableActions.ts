@@ -1,6 +1,5 @@
 import { Table } from "@/types";
 import { SqlValue } from "sql.js";
-import { dexieDb } from "@/lib/dexie";
 import { getDB, initializeSQL, resetDB } from "@/lib/sql";
 import { mockTables } from "@/mock/tables";
 
@@ -23,22 +22,30 @@ export const getTables = async (): Promise<Table[]> => {
     const db = getDB();
     if (!db) {
       await initializeSQL();
+      return [];
     }
 
-    const tables = await dexieDb.tablesTable.toArray();
-    return tables.sort((a, b) => a.name.localeCompare(b.name));
+    return getTablesFromDB();
   } catch (err) {
     throw err;
   }
 };
 
 const initializeTables = async (): Promise<void> => {
-  const existingTables = await dexieDb.tablesTable.count();
-  const tablesToInitialize =
-    existingTables === 0 ? mockTables : await dexieDb.tablesTable.toArray();
+  const db = getDB();
+  if (!db) {
+    throw new Error("Database not initialized");
+  }
 
-  for (const table of tablesToInitialize) {
-    await createTableFromInfo(table);
+  const tablesResult = db.exec(
+    "SELECT name FROM sqlite_master WHERE type='table'"
+  );
+  const tableCount = tablesResult[0]?.values.length || 0;
+
+  if (tableCount === 0) {
+    for (const table of mockTables) {
+      await createTableFromInfo(table);
+    }
   }
 };
 
@@ -61,8 +68,6 @@ const createTableFromInfo = async (table: Table): Promise<void> => {
     if (table.data?.length) {
       await insertTableData(table);
     }
-
-    await dexieDb.tablesTable.put(table);
   } catch (err) {
     throw err;
   }
@@ -102,24 +107,45 @@ const formatSqlValue = (val: unknown): string => {
   return String(val);
 };
 
-export const syncTablesWithIndexedDB = async (): Promise<void> => {
+export const getTablesFromDB = (): Table[] => {
   const db = getDB();
-  if (!db) return;
+  if (!db) {
+    return [];
+  }
 
   const tablesResult = db.exec(
     "SELECT name FROM sqlite_master WHERE type='table'"
   );
-  const tableNames = tablesResult[0]?.values.map((row) => String(row[0])) || [];
 
-  await dexieDb.tablesTable.clear();
+  if (!tablesResult[0] || !tablesResult[0].values.length) {
+    return [];
+  }
 
-  for (const tableName of tableNames) {
-    const tableInfo = await getTableInfo(tableName);
-    await dexieDb.tablesTable.put(tableInfo);
+  const tableNames = tablesResult[0].values.map((row) => String(row[0]));
+
+  return tableNames
+    .map((tableName) => getTableInfoSync(tableName))
+    .filter((table) => table !== null)
+    .sort((a, b) => a.name.localeCompare(b.name));
+};
+
+export const getTableRowCount = (tableName: string): number => {
+  const db = getDB();
+  if (!db) return 0;
+
+  try {
+    const result = db.exec(`SELECT COUNT(*) FROM ${tableName}`);
+    if (result.length > 0 && result[0].values.length > 0) {
+      return Number(result[0].values[0][0]);
+    }
+    return 0;
+  } catch (err) {
+    console.error(`Error getting row count for ${tableName}:`, err);
+    return 0;
   }
 };
 
-export const getTableInfo = async (tableName: string): Promise<Table> => {
+export const getTableInfoSync = (tableName: string): Table => {
   const db = getDB();
   if (!db) throw new Error("Database not initialized");
 
@@ -131,7 +157,7 @@ export const getTableInfo = async (tableName: string): Promise<Table> => {
     };
   });
 
-  const dataResult = db.exec(`SELECT * FROM ${tableName}`);
+  const dataResult = db.exec(`SELECT * FROM ${tableName} LIMIT 100`);
   const values = dataResult[0]?.values || [];
 
   const objectData = values.map((row) => {
@@ -142,9 +168,12 @@ export const getTableInfo = async (tableName: string): Promise<Table> => {
     return obj;
   });
 
+  const rowCount = getTableRowCount(tableName);
+
   return {
     name: tableName,
     columns,
     data: objectData,
+    rowCount,
   };
 };

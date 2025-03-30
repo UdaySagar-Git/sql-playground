@@ -1,10 +1,9 @@
 import { QueryResult } from "@/types";
 import { SqlValue } from "sql.js";
 import { getDB } from "@/lib/sql";
-import { syncTablesWithIndexedDB } from "./tableActions";
 
-const DDL_COMMANDS = /^(CREATE|ALTER|DROP|TRUNCATE)/i;
-const DML_COMMANDS = /^(INSERT|UPDATE|DELETE)/i;
+const DDL_COMMANDS =/^\s*(CREATE|ALTER|DROP|TRUNCATE|create|alter|drop|truncate)/im;
+const DML_COMMANDS = /^\s*(INSERT|UPDATE|DELETE|insert|update|delete)/im;
 
 export const executeQuery = async (sql: string): Promise<QueryResult[]> => {
   const db = getDB();
@@ -17,18 +16,27 @@ export const executeQuery = async (sql: string): Promise<QueryResult[]> => {
     const results = db.exec(sql);
     const executionTime = performance.now() - startTime;
 
-    const trimmedSql = sql.trim();
-    const isDDL = DDL_COMMANDS.test(trimmedSql);
-    const isDML = DML_COMMANDS.test(trimmedSql);
+    const hasDDL = DDL_COMMANDS.test(sql);
+    const hasDML = DML_COMMANDS.test(sql);
 
-    if (isDDL || isDML) {
-      await syncTablesWithIndexedDB();
+    const shouldRevalidateTables = hasDDL || hasDML;
+
+    if (results.length === 0 && shouldRevalidateTables) {
+      return [
+        {
+          columns: [],
+          values: [],
+          executionTime,
+          shouldRevalidateTables: true,
+        },
+      ];
     }
 
     return results.map((result) => ({
       columns: result.columns,
       values: result.values.map((row) => row.map(convertSqlValue)),
       executionTime,
+      shouldRevalidateTables,
     }));
   } catch (err) {
     console.error("Query execution error:", err);

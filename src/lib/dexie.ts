@@ -1,18 +1,13 @@
 import Dexie, { Table } from "dexie";
-import { Table as TableType, SavedQuery, QueryHistory } from "@/types";
+import { SavedQuery, QueryHistory } from "@/types";
 
 export class SQLDatabase extends Dexie {
   constructor() {
     super("SQLDatabase");
     this.version(1).stores({
-      tables: "++id, name",
       savedQueries: "++id, displayName, timestamp",
       queryHistory: "++id, timestamp",
     });
-  }
-
-  get tablesTable(): Table<TableType, number> {
-    return this.table("tables");
   }
 
   get savedQueriesTable(): Table<SavedQuery, string> {

@@ -63,6 +63,7 @@ export const TableList = () => {
               key={table.name}
               name={table.name}
               columns={table.columns}
+              rowCount={table.rowCount}
               isExpanded={openTable === table.name}
               onToggle={() => setOpenTable(openTable === table.name ? null : table.name)}
               onTableClick={handleTableClick}

@@ -6,6 +6,7 @@ import { Column } from "@/types";
 interface TableItemProps {
   name: string;
   columns: Column[];
+  rowCount?: number;
   isExpanded: boolean;
   onToggle: () => void;
   onTableClick: (e: React.MouseEvent, tableName: string) => void;
@@ -15,6 +16,7 @@ interface TableItemProps {
 export const TableItem = ({
   name,
   columns,
+  rowCount = 0,
   isExpanded,
   onToggle,
   onTableClick,
@@ -32,7 +34,8 @@ export const TableItem = ({
           className={styles.tableItem}
           onClick={(e) => onTableClick(e, name)}
         >
-          {name}
+          <span className={styles.tableName}>{name}</span>
+          <span className={styles.rowCount}>({rowCount} rows)</span>
         </button>
       </div>
       {isExpanded && (

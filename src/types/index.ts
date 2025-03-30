@@ -9,12 +9,14 @@ export interface Table {
   name: string;
   columns: Column[];
   data?: Record<string, SqlValue>[];
+  rowCount?: number;
 }
 
 export interface QueryResult {
   columns: string[];
   values: SqlValue[][];
   executionTime?: number;
+  shouldRevalidateTables?: boolean;
 }
 
 export interface Tab {

@@ -118,14 +118,30 @@ export function useExecuteQuery() {
   return useMutation({
     mutationFn: (sql: string) => executeQuery(sql),
     onSuccess: (results, sql) => {
-      queryClient.setQueryData([QUERY_KEYS.QUERY_RESULTS], results[0]);
+      if (results.length > 0) {
+        queryClient.setQueryData([QUERY_KEYS.QUERY_RESULTS], results[0]);
+      } else {
+        queryClient.setQueryData([QUERY_KEYS.QUERY_RESULTS], {
+          columns: [],
+          values: [],
+          executionTime: 0,
+        });
+      }
+
+      const shouldRevalidateTables = results.some(
+        (result) => result.shouldRevalidateTables
+      );
+
+      if (shouldRevalidateTables) {
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.TABLES] });
+      }
 
       if (sql.trim()) {
         saveHistoryMutation.mutate({
           id: Date.now().toString(),
           sql,
           timestamp: new Date(),
-          results: results[0],
+          results: results.length > 0 ? results[0] : undefined,
         });
       }
     },
