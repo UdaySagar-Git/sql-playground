@@ -2,7 +2,7 @@ import styles from "./tableList.module.css";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useTables, useRefreshTables } from "@/api/useDatabaseTables";
-import { useSetCurrentQuery } from "@/api/useQueryEditor";
+import { useUpdateTab } from "@/api/useQueryTabs";
 import { TableHeader } from "./TableHeader";
 import { TableItem } from "./TableItem";
 
@@ -10,7 +10,7 @@ export const TableList = () => {
   const [openTable, setOpenTable] = useState<string | null>(null);
   const { data: tables = [], isLoading, isError, error } = useTables();
   const refreshTablesMutation = useRefreshTables();
-  const setCurrentQuery = useSetCurrentQuery();
+  const updateTab = useUpdateTab();
 
   const handleRefresh = useCallback(async () => {
     try {
@@ -24,15 +24,15 @@ export const TableList = () => {
 
   const handleTableClick = useCallback((e: React.MouseEvent, tableName: string) => {
     e.stopPropagation();
-    setCurrentQuery(`SELECT * FROM ${tableName};`);
+    updateTab(`SELECT * FROM ${tableName};`);
     toast.success(`Selected table: ${tableName}`);
-  }, [setCurrentQuery]);
+  }, [updateTab]);
 
   const handleColumnClick = useCallback((e: React.MouseEvent, tableName: string, columnName: string) => {
     e.stopPropagation();
-    setCurrentQuery(`SELECT ${columnName} FROM ${tableName};`);
+    updateTab(`SELECT ${columnName} FROM ${tableName};`);
     toast.success(`Selected column: ${columnName} from ${tableName}`);
-  }, [setCurrentQuery]);
+  }, [updateTab]);
 
   if (isError) {
     return (

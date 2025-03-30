@@ -14,11 +14,11 @@ interface TabsListProps {
 export const TabsList = ({ tabs, activeTabId, onTabSelect, onTabClose, onNewTab }: TabsListProps) => {
   return (
     <div className={styles.tabsList}>
-      {tabs.map((tab) => (
+      {tabs.map((tab, index) => (
         <TabItem
           key={tab.id}
           id={tab.id}
-          name={tab.name}
+          name={`Query ${index + 1}`}
           isActive={activeTabId === tab.id}
           onSelect={onTabSelect}
           onClose={onTabClose}

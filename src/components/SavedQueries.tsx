@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { useInfiniteSavedQueries, useUpdateQuery, useDeleteQuery } from "@/api/useQueryOperations";
-import { useTabs } from "@/api/useQueryTabs";
+import { useUpdateTab } from "@/api/useQueryTabs";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ListHeader } from "./common/ListHeader";
 import { SearchInput } from "./common/SearchInput";
@@ -27,7 +27,7 @@ export const SavedQueries = () => {
 
   const updateQueryMutation = useUpdateQuery();
   const deleteQueryMutation = useDeleteQuery();
-  const { updateCurrentTabQuery } = useTabs();
+  const updateTab = useUpdateTab();
 
   const displayedQueries = useMemo(() => {
     return queriesData?.pages.flatMap(page => page.data) || [];
@@ -67,9 +67,9 @@ export const SavedQueries = () => {
   }, [displayedQueries, deleteQueryMutation]);
 
   const handleQuerySelect = useCallback((sql: string) => {
-    updateCurrentTabQuery(sql);
+    updateTab(sql);
     toast.success("Query loaded");
-  }, [updateCurrentTabQuery]);
+  }, [updateTab]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);

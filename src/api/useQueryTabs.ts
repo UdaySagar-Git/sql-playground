@@ -1,80 +1,150 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tab } from "@/types";
-import { queryClient } from "@/lib/queryClient";
 import { QUERY_KEYS } from "@/lib/constants";
+import {
+  INITIAL_TAB,
+  loadTabsFromStorage,
+  saveTabsToStorage,
+  loadActiveTabIdFromStorage,
+  saveActiveTabIdToStorage,
+  createNewTab,
+} from "@/actions/queryTabsActions";
 
-const INITIAL_TAB: Tab = { id: "1", name: "Query 1", query: "" };
+export function useTabs() {
+  const queryClient = useQueryClient();
 
-export function useTabs(initialTabs: Tab[] = [INITIAL_TAB]) {
-  const [tabs, setTabs] = useState<Tab[]>(initialTabs);
-  const [activeTabId, setActiveTabId] = useState<string>(
-    initialTabs[0]?.id || INITIAL_TAB.id
-  );
+  const initialTabs = loadTabsFromStorage();
+  if (!queryClient.getQueryData([QUERY_KEYS.TABS])) {
+    queryClient.setQueryData([QUERY_KEYS.TABS], initialTabs);
 
-  const currentTab = tabs.find((tab) => tab.id === activeTabId) || INITIAL_TAB;
+    const activeTabId = loadActiveTabIdFromStorage();
+    queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], activeTabId);
+  }
 
-  const handleTabSelect = useCallback(
+  const { data } = useQuery<Tab[]>({
+    queryKey: [QUERY_KEYS.TABS],
+    initialData: initialTabs,
+    staleTime: Infinity,
+  });
+
+  if (data) {
+    saveTabsToStorage(data);
+  }
+
+  return { data };
+}
+
+export function useActiveTabId() {
+  const initialTabId = loadActiveTabIdFromStorage();
+
+  const { data } = useQuery<string>({
+    queryKey: [QUERY_KEYS.CURRENT_TAB_ID],
+    initialData: initialTabId,
+    staleTime: Infinity,
+  });
+
+  if (data) {
+    saveActiveTabIdToStorage(data);
+  }
+
+  return data || initialTabId;
+}
+
+export function useSetActiveTab() {
+  const queryClient = useQueryClient();
+  return useCallback(
     (id: string) => {
-      setActiveTabId(id);
-      const selectedTab = tabs.find((tab) => tab.id === id);
-      if (selectedTab) {
-        queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], selectedTab.query);
-      }
+      queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], id);
+      saveActiveTabIdToStorage(id);
     },
-    [tabs]
+    [queryClient]
   );
+}
 
-  const handleTabClose = useCallback(
-    (id: string) => {
-      setTabs((prev) => {
-        const newTabs = prev.filter((tab) => tab.id !== id);
-        if (newTabs.length === 0) {
-          const newTab = { ...INITIAL_TAB, id: Date.now().toString() };
-          setActiveTabId(newTab.id);
-          queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], newTab.query);
-          return [newTab];
-        }
-        if (id === activeTabId) {
-          setActiveTabId(newTabs[0].id);
-          queryClient.setQueryData(
-            [QUERY_KEYS.CURRENT_QUERY],
-            newTabs[0].query
-          );
-        }
-        return newTabs;
-      });
-    },
-    [activeTabId]
-  );
+export function useCurrentTab() {
+  const activeTabId = useActiveTabId();
+  const { data: tabs = [] } = useQuery<Tab[]>({
+    queryKey: [QUERY_KEYS.TABS],
+    initialData: loadTabsFromStorage(),
+    staleTime: Infinity,
+  });
 
-  const handleNewTab = useCallback(() => {
-    const newTab = {
-      id: Date.now().toString(),
-      name: `Query ${tabs.length + 1}`,
-      query: "",
-    };
-    setTabs((prev) => [...prev, newTab]);
-    setActiveTabId(newTab.id);
-    queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], newTab.query);
-  }, [tabs.length]);
+  return tabs.find((tab) => tab.id === activeTabId) || INITIAL_TAB;
+}
 
-  const updateCurrentTabQuery = useCallback(
+export function useUpdateTab() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
     (query: string) => {
-      setTabs((prev) =>
-        prev.map((tab) => (tab.id === activeTabId ? { ...tab, query } : tab))
-      );
-      queryClient.setQueryData([QUERY_KEYS.CURRENT_QUERY], query);
-    },
-    [activeTabId]
-  );
+      const currentTabs =
+        queryClient.getQueryData<Tab[]>([QUERY_KEYS.TABS]) || [];
+      const activeTabId = queryClient.getQueryData<string>([
+        QUERY_KEYS.CURRENT_TAB_ID,
+      ]);
 
-  return {
-    tabs,
-    activeTabId,
-    currentTab,
-    handleTabSelect,
-    handleTabClose,
-    handleNewTab,
-    updateCurrentTabQuery,
-  };
+      if (!activeTabId) return;
+
+      const updatedTabs = currentTabs.map((tab) =>
+        tab.id === activeTabId ? { ...tab, query } : tab
+      );
+
+      queryClient.setQueryData([QUERY_KEYS.TABS], updatedTabs);
+      saveTabsToStorage(updatedTabs);
+    },
+    [queryClient]
+  );
+}
+
+export function useDeleteTab() {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    (id: string) => {
+      const currentTabs =
+        queryClient.getQueryData<Tab[]>([QUERY_KEYS.TABS]) || [];
+      const activeTabId = queryClient.getQueryData<string>([
+        QUERY_KEYS.CURRENT_TAB_ID,
+      ]);
+
+      if (!activeTabId) return;
+
+      const newTabs = currentTabs.filter((tab) => tab.id !== id);
+
+      if (newTabs.length === 0) {
+        const newTab = { ...INITIAL_TAB, id: Date.now().toString() };
+        queryClient.setQueryData([QUERY_KEYS.TABS], [newTab]);
+        queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTab.id);
+        saveTabsToStorage([newTab]);
+        saveActiveTabIdToStorage(newTab.id);
+        return;
+      }
+
+      if (id === activeTabId) {
+        queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTabs[0].id);
+        saveActiveTabIdToStorage(newTabs[0].id);
+      }
+
+      queryClient.setQueryData([QUERY_KEYS.TABS], newTabs);
+      saveTabsToStorage(newTabs);
+    },
+    [queryClient]
+  );
+}
+
+export function useCreateTab() {
+  const queryClient = useQueryClient();
+
+  return useCallback(() => {
+    const currentTabs =
+      queryClient.getQueryData<Tab[]>([QUERY_KEYS.TABS]) || [];
+    const newTab = createNewTab();
+
+    const updatedTabs = [...currentTabs, newTab];
+    queryClient.setQueryData([QUERY_KEYS.TABS], updatedTabs);
+    queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTab.id);
+    saveTabsToStorage(updatedTabs);
+    saveActiveTabIdToStorage(newTab.id);
+  }, [queryClient]);
 }

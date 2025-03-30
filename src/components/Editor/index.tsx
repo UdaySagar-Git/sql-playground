@@ -1,7 +1,6 @@
 import { lazy, Suspense, useCallback } from 'react';
 import styles from "./editor.module.css";
-import { useCurrentQuery } from "@/api/useQueryEditor";
-import { useTabs } from "@/api/useQueryTabs";
+import { useCurrentTab, useUpdateTab } from "@/api/useQueryTabs";
 import { useExecuteQuery } from "@/api/useQueryOperations";
 import { toast } from "sonner";
 import { editor } from 'monaco-editor';
@@ -12,12 +11,12 @@ const MonacoEditorLazy = lazy(() => import("@monaco-editor/react").then(
 ));
 
 export const MonacoEditor = () => {
-  const { data: currentQuery = "" } = useCurrentQuery();
-  const { updateCurrentTabQuery, currentTab } = useTabs();
+  const updateTab = useUpdateTab();
+  const currentTab = useCurrentTab();
   const executeQueryMutation = useExecuteQuery();
 
   const handleRunQuery = useCallback(async () => {
-    const queryToExecute = currentTab?.query || currentQuery || "";
+    const queryToExecute = currentTab?.query || "";
 
     if (!queryToExecute) {
       toast.error("Please enter a query before executing.");
@@ -31,7 +30,7 @@ export const MonacoEditor = () => {
       const errorMessage = err instanceof Error ? err.message : "An error occurred while executing the query";
       toast.error(errorMessage);
     }
-  }, [currentQuery, currentTab, executeQueryMutation]);
+  }, [currentTab, executeQueryMutation]);
 
   const handleEditorDidMount = useCallback((editorInstance: editor.IStandaloneCodeEditor, monacoInstance: typeof monaco) => {
     editorInstance.addCommand(monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter, handleRunQuery);
@@ -44,8 +43,8 @@ export const MonacoEditor = () => {
           height="100%"
           defaultLanguage="sql"
           theme="vs-dark"
-          value={currentQuery}
-          onChange={(val) => updateCurrentTabQuery(val || "")}
+          value={currentTab?.query || ""}
+          onChange={(val) => updateTab(val || "")}
           onMount={handleEditorDidMount}
           options={{
             minimap: { enabled: false },

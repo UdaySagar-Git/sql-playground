@@ -1,28 +1,32 @@
 import styles from "./queryTabs.module.css";
-import { useTabs } from "@/api/useQueryTabs";
+import {
+  useTabs,
+  useActiveTabId,
+  useSetActiveTab,
+  useCurrentTab,
+  useUpdateTab,
+  useDeleteTab,
+  useCreateTab
+} from "@/api/useQueryTabs";
 import { useExecuteQuery, useSaveQuery } from "@/api/useQueryOperations";
-import { useCurrentQuery } from "@/api/useQueryEditor";
 import { toast } from "sonner";
 import { TabsList } from "./TabsList";
 import { ActionButtons } from "./ActionButtons";
 
 export const QueryTabs = () => {
-  const {
-    tabs,
-    activeTabId,
-    currentTab,
-    handleTabSelect,
-    handleTabClose,
-    handleNewTab,
-    updateCurrentTabQuery
-  } = useTabs();
+  const { data: tabs = [] } = useTabs();
+  const activeTabId = useActiveTabId();
+  const currentTab = useCurrentTab();
+  const setActiveTab = useSetActiveTab();
+  const deleteTab = useDeleteTab();
+  const createTab = useCreateTab();
+  const updateTab = useUpdateTab();
 
-  const { data: currentQuery = "" } = useCurrentQuery();
   const executeQueryMutation = useExecuteQuery();
   const saveQueryMutation = useSaveQuery();
 
   const handleRunQuery = async () => {
-    const queryToExecute = currentTab?.query || currentQuery || "";
+    const queryToExecute = currentTab?.query || "";
 
     if (!queryToExecute) {
       toast.error("Please enter a query before executing.");
@@ -39,7 +43,7 @@ export const QueryTabs = () => {
   };
 
   const handleSaveQuery = async () => {
-    const queryToSave = currentTab?.query || currentQuery || "";
+    const queryToSave = currentTab?.query || "";
 
     if (!queryToSave) {
       toast.error("Please enter a query before saving.");
@@ -62,7 +66,7 @@ export const QueryTabs = () => {
   };
 
   const handleClear = () => {
-    updateCurrentTabQuery("");
+    updateTab("");
     toast.success("Editor cleared");
   };
 
@@ -71,9 +75,9 @@ export const QueryTabs = () => {
       <TabsList
         tabs={tabs}
         activeTabId={activeTabId}
-        onTabSelect={handleTabSelect}
-        onTabClose={handleTabClose}
-        onNewTab={handleNewTab}
+        onTabSelect={setActiveTab}
+        onTabClose={deleteTab}
+        onNewTab={createTab}
       />
       <ActionButtons
         onRunQuery={handleRunQuery}

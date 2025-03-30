@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { useInfiniteQueryHistory } from "@/api/useQueryOperations";
 import { useDeleteQueryHistory, useDeleteAllQueryHistory } from "@/api/useQueryHistory";
-import { useTabs } from "@/api/useQueryTabs";
+import { useUpdateTab } from "@/api/useQueryTabs";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ListHeader } from "./common/ListHeader";
 import { SearchInput } from "./common/SearchInput";
@@ -26,7 +26,7 @@ export const QueryHistory = () => {
 
   const deleteHistoryMutation = useDeleteQueryHistory();
   const deleteAllHistoryMutation = useDeleteAllQueryHistory();
-  const { updateCurrentTabQuery } = useTabs();
+  const updateTab = useUpdateTab();
 
   const handleQueryDelete = useCallback(async (id: string) => {
     try {
@@ -49,9 +49,9 @@ export const QueryHistory = () => {
   }, [deleteAllHistoryMutation]);
 
   const handleSelectQuery = useCallback((sql: string) => {
-    updateCurrentTabQuery(sql);
+    updateTab(sql);
     toast.success("Query loaded from history");
-  }, [updateCurrentTabQuery]);
+  }, [updateTab]);
 
   const displayedQueries = useMemo(() => {
     return historyData?.pages.flatMap(page => page.data) || [];

@@ -21,7 +21,6 @@ export interface QueryResult {
 
 export interface Tab {
   id: string;
-  name: string;
   query?: string;
 }
 
