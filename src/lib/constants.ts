@@ -10,7 +10,7 @@ export const QUERY_KEYS = {
 export const LOCAL_STORAGE_TABS_KEY = "sql-query-tabs";
 export const LOCAL_STORAGE_ACTIVE_TAB_KEY = "sql-query-active-tab";
 
-export const SAMPLE_QUERY = `-- Create a employees table
+export const SAMPLE_QUERY1 = `-- Create a employees table
 DROP TABLE IF EXISTS employees;
 CREATE TABLE employees (
   id INTEGER PRIMARY KEY,
@@ -36,3 +36,32 @@ SELECT
 FROM employees
 GROUP BY department
 ORDER BY avg_salary DESC;`;
+
+export const SAMPLE_QUERY2 = `-- Drop table if exists
+DROP TABLE IF EXISTS categories;
+
+-- Create categories table
+CREATE TABLE categories (
+  category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  category_name TEXT NOT NULL,
+  type TEXT,
+  budget NUMERIC,
+  created_date DATE
+);
+
+-- Populate table with 100000 rows
+WITH RECURSIVE generate_series(id) AS (
+  SELECT 1
+  UNION ALL
+  SELECT id + 1 FROM generate_series WHERE id < 100000
+)
+INSERT INTO categories (category_name, type, budget, created_date)
+SELECT 
+  'Category ' || id, 
+  'Type ' || (id % 5), 
+  10000, 
+  '2020-01-01'
+FROM generate_series;
+
+-- Query the data
+SELECT * FROM categories;`;

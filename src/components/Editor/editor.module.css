@@ -10,39 +10,3 @@
 .editorContainer :global(.monaco-editor .margin) {
   background: var(--background-tertiary) !important;
 }
-
-.editorContainer :global(.monaco-editor .line-numbers) {
-  color: var(--text-secondary) !important;
-}
-
-.editorContainer :global(.monaco-editor .current-line) {
-  background: var(--background-hover) !important;
-}
-
-.editorContainer :global(.monaco-editor .view-overlays .current-line) {
-  border: none !important;
-}
-
-.editorContainer :global(.monaco-editor .cursors-layer .cursor) {
-  background: var(--text-primary) !important;
-}
-
-.editorContainer :global(.monaco-editor .minimap) {
-  background: var(--background-secondary) !important;
-}
-
-.editorContainer :global(.monaco-editor .token.keyword) {
-  color: var(--editor-keyword) !important;
-}
-
-.editorContainer :global(.monaco-editor .token.string) {
-  color: var(--editor-string) !important;
-}
-
-.editorContainer :global(.monaco-editor .token.number) {
-  color: var(--editor-number) !important;
-}
-
-.editorContainer :global(.monaco-editor .token.comment) {
-  color: var(--editor-comment) !important;
-}

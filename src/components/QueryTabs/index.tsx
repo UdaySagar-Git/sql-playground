@@ -12,6 +12,7 @@ import { useExecuteQuery, useSaveQuery } from "@/api/useQueryOperations";
 import { toast } from "sonner";
 import { TabsList } from "./TabsList";
 import { ActionButtons } from "./ActionButtons";
+import { generateId } from "@/lib/utils";
 
 export const QueryTabs = () => {
   const { data: tabs = [] } = useTabs();
@@ -52,7 +53,7 @@ export const QueryTabs = () => {
 
     try {
       const newQuery = {
-        id: Date.now().toString(),
+        id: generateId(),
         sql: queryToSave,
         timestamp: new Date()
       };

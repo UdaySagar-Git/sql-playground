@@ -5,6 +5,7 @@ import { useExecuteQuery } from "@/api/useQueryOperations";
 import { toast } from "sonner";
 import { editor } from 'monaco-editor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { useTheme } from 'next-themes';
 
 const MonacoEditorLazy = lazy(() => import("@monaco-editor/react").then(
   module => ({ default: module.Editor })
@@ -14,6 +15,7 @@ export const MonacoEditor = () => {
   const updateTab = useUpdateTab();
   const currentTab = useCurrentTab();
   const executeQueryMutation = useExecuteQuery();
+  const { theme } = useTheme();
 
   const handleRunQuery = useCallback(async () => {
     const queryToExecute = currentTab?.query || "";
@@ -42,7 +44,7 @@ export const MonacoEditor = () => {
         <MonacoEditorLazy
           height="100%"
           defaultLanguage="sql"
-          theme="vs-dark"
+          theme={theme === "light" ? "vs" : "vs-dark"}
           value={currentTab?.query || ""}
           onChange={(val) => updateTab(val || "")}
           onMount={handleEditorDidMount}

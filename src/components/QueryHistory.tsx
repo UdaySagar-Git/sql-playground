@@ -8,6 +8,7 @@ import { ListHeader } from "./common/ListHeader";
 import { SearchInput } from "./common/SearchInput";
 import { ListContainer } from "./common/ListContainer";
 import { ListItem } from "./common/ListItem";
+import { formatDate } from "@/lib/utils";
 import styles from "./common/common.module.css";
 
 const ITEMS_PER_PAGE = 15;
@@ -100,7 +101,7 @@ export const QueryHistory = () => {
             key={query.id}
             id={query.id}
             title={query.sql}
-            subtitle={new Date(query.timestamp).toLocaleTimeString()}
+            subtitle={formatDate(query.timestamp)}
             onSelect={() => handleSelectQuery(query.sql)}
             onDelete={handleQueryDelete}
             isDeleting={deleteHistoryMutation.isPending}

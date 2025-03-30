@@ -2,8 +2,9 @@ import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tab } from "@/types";
 import { QUERY_KEYS } from "@/lib/constants";
+import { generateId } from "@/lib/utils";
 import {
-  INITIAL_TAB,
+  INITIAL_TABS,
   loadTabsFromStorage,
   saveTabsToStorage,
   loadActiveTabIdFromStorage,
@@ -70,7 +71,7 @@ export function useCurrentTab() {
     staleTime: Infinity,
   });
 
-  return tabs.find((tab) => tab.id === activeTabId) || INITIAL_TAB;
+  return tabs.find((tab) => tab.id === activeTabId) || INITIAL_TABS[0];
 }
 
 export function useUpdateTab() {
@@ -113,7 +114,7 @@ export function useDeleteTab() {
       const newTabs = currentTabs.filter((tab) => tab.id !== id);
 
       if (newTabs.length === 0) {
-        const newTab = { ...INITIAL_TAB, id: Date.now().toString() };
+        const newTab = { ...INITIAL_TABS[0], id: generateId() };
         queryClient.setQueryData([QUERY_KEYS.TABS], [newTab]);
         queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTab.id);
         saveTabsToStorage([newTab]);

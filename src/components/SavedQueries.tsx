@@ -7,6 +7,7 @@ import { ListHeader } from "./common/ListHeader";
 import { SearchInput } from "./common/SearchInput";
 import { ListContainer } from "./common/ListContainer";
 import { ListItem } from "./common/ListItem";
+import { formatDate } from "@/lib/utils";
 import styles from "./common/common.module.css";
 
 const ITEMS_PER_PAGE = 10;
@@ -130,12 +131,7 @@ export const SavedQueries = () => {
             key={query.id}
             id={query.id}
             title={query.displayName || query.sql}
-            subtitle={new Date(query.timestamp).toLocaleTimeString('en-US', {
-              hour12: false,
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            })}
+            subtitle={formatDate(query.timestamp)}
             isEditing={editingId === query.id}
             editValue={editValue}
             onEditValueChange={setEditValue}

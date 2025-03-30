@@ -12,6 +12,10 @@
   color: var(--text-accent);
   text-transform: uppercase;
   letter-spacing: 1px;
+  max-width: 80%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .clearAllButton {
@@ -80,6 +84,10 @@
   color: var(--text-secondary);
   font-size: 11px;
   line-height: 1.2;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .paginationInfo strong {
@@ -116,6 +124,7 @@
   background: var(--background-tertiary);
   min-width: 0;
   overflow: hidden;
+  width: 100%;
 }
 
 .itemButton {
@@ -130,6 +139,7 @@
   min-width: 0;
   width: 100%;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .itemButton:hover {
@@ -227,6 +237,9 @@
   font-size: 12px;
   background: var(--background-tertiary);
   border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .emptyState {
@@ -236,6 +249,9 @@
   text-align: center;
   background: var(--background-tertiary);
   border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Search */

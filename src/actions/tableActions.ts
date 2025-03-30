@@ -1,7 +1,6 @@
 import { Table } from "@/types";
 import { SqlValue } from "sql.js";
 import { getDB, initializeSQL, resetDB } from "@/lib/sql";
-import { mockTables } from "@/mock/tables";
 
 export const initializeSQLService = async (): Promise<boolean> => {
   try {
@@ -43,68 +42,54 @@ const initializeTables = async (): Promise<void> => {
   const tableCount = tablesResult[0]?.values.length || 0;
 
   if (tableCount === 0) {
-    for (const table of mockTables) {
-      await createTableFromInfo(table);
-    }
+    await executeSQLFilesFromDatasets();
   }
 };
 
-const createTableFromInfo = async (table: Table): Promise<void> => {
+const executeSQLFilesFromDatasets = async (): Promise<void> => {
   const db = getDB();
   if (!db) {
     throw new Error("Database not initialized");
   }
 
-  try {
-    const dropSQL = `DROP TABLE IF EXISTS ${table.name}`;
-    db.exec(dropSQL);
-
-    const columnDefs = table.columns
-      .map((col) => `${col.name} ${col.type}`)
-      .join(", ");
-    const createTableSQL = `CREATE TABLE IF NOT EXISTS ${table.name} (${columnDefs})`;
-    db.exec(createTableSQL);
-
-    if (table.data?.length) {
-      await insertTableData(table);
-    }
-  } catch (err) {
-    throw err;
-  }
-};
-
-const insertTableData = async (table: Table): Promise<void> => {
-  const db = getDB();
-  if (!db) return;
+  const sqlFiles = [
+    "categories.sql",
+    "regions.sql",
+    "territories.sql",
+    "customers.sql",
+    "employees.sql",
+    "employee_territories.sql",
+    "shippers.sql",
+    "suppliers.sql",
+    "products.sql",
+    "orders.sql",
+    "order_details.sql",
+  ];
 
   try {
-    // to avoid race conditions
-    db.exec("BEGIN TRANSACTION");
+    for (const file of sqlFiles) {
+      let sqlContent = "";
+      try {
+        const response = await fetch(`/mock/datasets/${file}`);
+        sqlContent = await response.text();
+      } catch (fetchError) {
+        console.error(`Error fetching SQL file ${file}:`, fetchError);
+        continue;
+      }
 
-    for (const row of table.data!) {
-      const values = table.columns
-        .map((col) => {
-          const val = row[col.name];
-          return formatSqlValue(val);
-        })
-        .join(", ");
-      const insertSQL = `INSERT INTO ${table.name} VALUES (${values})`;
-      db.exec(insertSQL);
+      if (sqlContent) {
+        try {
+          db.exec(sqlContent);
+          console.log(`Successfully executed SQL file: ${file}`);
+        } catch (execError) {
+          console.error(`Error executing SQL in file ${file}:`, execError);
+        }
+      }
     }
-
-    db.exec("COMMIT");
   } catch (err) {
-    try {
-      db.exec("ROLLBACK");
-    } catch {}
+    console.error("Error executing SQL files:", err);
     throw err;
   }
-};
-
-const formatSqlValue = (val: unknown): string => {
-  if (val === null) return "NULL";
-  if (typeof val === "string") return `'${val.replace(/'/g, "''")}'`;
-  return String(val);
 };
 
 export const getTablesFromDB = (): Table[] => {

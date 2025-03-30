@@ -22,6 +22,7 @@ import {
   PaginationParams,
 } from "@/types";
 import { QUERY_KEYS } from "@/lib/constants";
+import { generateId } from "@/lib/utils";
 
 export function useInfiniteSavedQueries(
   limit: number = 10,
@@ -138,7 +139,7 @@ export function useExecuteQuery() {
 
       if (sql.trim()) {
         saveHistoryMutation.mutate({
-          id: Date.now().toString(),
+          id: generateId(),
           sql,
           timestamp: new Date(),
           results: results.length > 0 ? results[0] : undefined,

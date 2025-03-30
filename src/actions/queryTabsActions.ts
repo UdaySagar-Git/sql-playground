@@ -1,14 +1,22 @@
 import { Tab } from "@/types";
 import {
-  SAMPLE_QUERY,
+  SAMPLE_QUERY1,
   LOCAL_STORAGE_TABS_KEY,
   LOCAL_STORAGE_ACTIVE_TAB_KEY,
+  SAMPLE_QUERY2,
 } from "@/lib/constants";
+import { generateId } from "@/lib/utils";
 
-export const INITIAL_TAB: Tab = {
-  id: Date.now().toString(),
-  query: SAMPLE_QUERY,
-};
+export const INITIAL_TABS: Tab[] = [
+  {
+    id: generateId(),
+    query: SAMPLE_QUERY1,
+  },
+  {
+    id: generateId(),
+    query: SAMPLE_QUERY2,
+  },
+];
 
 export const loadTabsFromStorage = (): Tab[] => {
   try {
@@ -19,7 +27,7 @@ export const loadTabsFromStorage = (): Tab[] => {
   } catch (error) {
     console.error("Error loading tabs from localStorage:", error);
   }
-  return [INITIAL_TAB];
+  return INITIAL_TABS;
 };
 
 export const saveTabsToStorage = (tabs: Tab[]) => {
@@ -41,7 +49,7 @@ export const loadActiveTabIdFromStorage = (): string => {
   } catch (error) {
     console.error("Error loading active tab ID from localStorage:", error);
   }
-  return INITIAL_TAB.id;
+  return INITIAL_TABS[0].id;
 };
 
 export const saveActiveTabIdToStorage = (id: string) => {
@@ -54,7 +62,7 @@ export const saveActiveTabIdToStorage = (id: string) => {
 
 export const createNewTab = (): Tab => {
   return {
-    id: Date.now().toString(),
+    id: generateId(),
     query: "",
   };
 };
