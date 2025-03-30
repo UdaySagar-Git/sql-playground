@@ -1,6 +1,11 @@
 import { useState, useMemo, useCallback } from "react";
 import { toast } from "sonner";
-import { useInfiniteSavedQueries, useUpdateQuery, useDeleteQuery } from "@/api/useQueryOperations";
+import {
+  useInfiniteSavedQueries,
+  useUpdateQuery,
+  useDeleteQuery,
+  useDeleteAllSavedQueries
+} from "@/api/useQueryOperations";
 import { useUpdateTab } from "@/api/useQueryTabs";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ListHeader } from "./common/ListHeader";
@@ -28,6 +33,7 @@ export const SavedQueries = () => {
 
   const updateQueryMutation = useUpdateQuery();
   const deleteQueryMutation = useDeleteQuery();
+  const deleteAllQueriesMutation = useDeleteAllSavedQueries();
   const updateTab = useUpdateTab();
 
   const displayedQueries = useMemo(() => {
@@ -55,17 +61,14 @@ export const SavedQueries = () => {
   }, [deleteQueryMutation]);
 
   const handleClearAll = useCallback(async () => {
-    if (displayedQueries.length === 0) return;
-
     try {
-      const deletePromises = displayedQueries.map(query => deleteQueryMutation.mutateAsync(query.id));
-      await Promise.all(deletePromises);
+      await deleteAllQueriesMutation.mutateAsync();
       toast.success("All saved queries cleared");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to clear saved queries";
       toast.error(errorMessage);
     }
-  }, [displayedQueries, deleteQueryMutation]);
+  }, [deleteAllQueriesMutation]);
 
   const handleQuerySelect = useCallback((sql: string) => {
     updateTab(sql);

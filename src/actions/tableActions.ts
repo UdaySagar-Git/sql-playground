@@ -6,6 +6,7 @@ import { dexieDb } from "@/lib/dexie";
 import { generateId } from "@/lib/utils";
 import { sqlFiles } from "@/mock/datasets";
 import { SAMPLE_QUERY1, SAMPLE_QUERY2 } from "@/lib/constants";
+import { mockQueries } from "@/mock/queries";
 
 export const initializeSQLService = async (): Promise<boolean> => {
   try {
@@ -13,6 +14,7 @@ export const initializeSQLService = async (): Promise<boolean> => {
     if (success) {
       await initializeTables();
       await initializeSavedQueries();
+      await initializeQueryHistory();
       return true;
     }
     return false;
@@ -27,20 +29,6 @@ const initializeSavedQueries = async (): Promise<void> => {
     const count = await dexieDb.savedQueriesTable.count();
 
     if (count === 0) {
-      await dexieDb.savedQueriesTable.add({
-        id: generateId(),
-        sql: SAMPLE_QUERY1,
-        displayName: "Sample Employee Query",
-        timestamp: new Date(),
-      });
-
-      await dexieDb.savedQueriesTable.add({
-        id: generateId(),
-        sql: SAMPLE_QUERY2,
-        displayName: "Generate 100000 rows",
-        timestamp: new Date(),
-      });
-
       const promises = Object.entries(sqlFiles).map(
         async ([sqlFileKey, sqlContent]) => {
           const displayName = `Create ${sqlFileKey}`;
@@ -61,9 +49,39 @@ const initializeSavedQueries = async (): Promise<void> => {
       );
 
       await Promise.all(promises);
+
+      await dexieDb.savedQueriesTable.add({
+        id: generateId(),
+        sql: SAMPLE_QUERY1,
+        displayName: "Sample Employee Query",
+        timestamp: new Date(),
+      });
+
+      await dexieDb.savedQueriesTable.add({
+        id: generateId(),
+        sql: SAMPLE_QUERY2,
+        displayName: "Generate 100000 rows",
+        timestamp: new Date(),
+      });
     }
   } catch (err) {
     console.error("Failed to initialize saved queries:", err);
+  }
+};
+
+const initializeQueryHistory = async (): Promise<void> => {
+  try {
+    const count = await dexieDb.queryHistoryTable.count();
+
+    if (count === 0) {
+      const promises = mockQueries.map((query) => {
+        return dexieDb.queryHistoryTable.add(query);
+      });
+
+      await Promise.all(promises);
+    }
+  } catch (err) {
+    console.error("Failed to initialize query history:", err);
   }
 };
 

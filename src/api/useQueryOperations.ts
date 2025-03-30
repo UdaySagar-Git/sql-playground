@@ -9,6 +9,7 @@ import {
   updateQuery,
   deleteQuery,
   getPaginatedSavedQueries,
+  deleteAllSavedQueries,
 } from "@/actions/queryActions";
 import { executeQuery } from "@/actions/queryExecutionActions";
 import {
@@ -82,6 +83,17 @@ export function useDeleteQuery() {
   });
 }
 
+export function useDeleteAllSavedQueries() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => deleteAllSavedQueries(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SAVED_QUERIES] });
+    },
+  });
+}
+
 export function useInfiniteQueryHistory(
   limit: number = 10,
   searchTerm: string = ""
@@ -142,7 +154,6 @@ export function useExecuteQuery() {
           id: generateId(),
           sql,
           timestamp: new Date(),
-          results: results.length > 0 ? results[0] : undefined,
         });
       }
     },

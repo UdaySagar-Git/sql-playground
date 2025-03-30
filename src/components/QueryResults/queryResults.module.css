@@ -712,3 +712,76 @@
   border-radius: 6px;
   border: 1px dashed var(--border-color);
 }
+
+.paginationControlsMobile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--background);
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  min-height: 48px;
+  flex-shrink: 0;
+}
+
+.paginationRowInfo {
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mobilePageNav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mobilePageSelect {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  width: 50px;
+  height: 28px;
+}
+
+.mobileActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mobileRowsSelect {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  width: 50px;
+  height: 28px;
+}
+
+.mobileExportButton {
+  background: var(--background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  height: 28px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-accent);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.mobileExportButton:hover {
+  background: var(--background-hover);
+  border-color: var(--text-accent);
+}

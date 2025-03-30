@@ -145,6 +145,10 @@
 
 .tableName {
   color: var(--text-primary);
+  max-width: 80%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .rowCount {
@@ -180,6 +184,10 @@
 
 .columnName {
   color: var(--text-primary);
+  max-width: 80%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .columnType {

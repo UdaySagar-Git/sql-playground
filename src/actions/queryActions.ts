@@ -54,7 +54,12 @@ export const getPaginatedSavedQueries = async (
     if (cursor) {
       const cursorItem = await dexieDb.savedQueriesTable.get(cursor);
       if (cursorItem) {
-        query = query.filter((item) => item.timestamp < cursorItem.timestamp);
+        query = query.filter(
+          (item) =>
+            item.timestamp < cursorItem.timestamp ||
+            (item.timestamp.getTime() === cursorItem.timestamp.getTime() &&
+              item.id < cursorItem.id)
+        );
       }
     }
 
@@ -83,6 +88,15 @@ export const deleteQuery = async (id: string): Promise<void> => {
     await dexieDb.savedQueriesTable.delete(id);
   } catch (err) {
     console.error("Failed to delete query:", err);
+    throw err;
+  }
+};
+
+export const deleteAllSavedQueries = async (): Promise<void> => {
+  try {
+    await dexieDb.savedQueriesTable.clear();
+  } catch (err) {
+    console.error("Failed to delete all saved queries:", err);
     throw err;
   }
 };

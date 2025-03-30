@@ -22,6 +22,12 @@ export const TableItem = ({
   onTableClick,
   onColumnClick,
 }: TableItemProps) => {
+
+  const handleTableClick = (e: React.MouseEvent) => {
+    onTableClick(e, name);
+    onToggle();
+  };
+
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.tableHeader} onClick={onToggle}>
@@ -32,7 +38,7 @@ export const TableItem = ({
         )}
         <button
           className={styles.tableItem}
-          onClick={(e) => onTableClick(e, name)}
+          onClick={handleTableClick}
         >
           <span className={styles.tableName}>{name}</span>
           <span className={styles.rowCount}>({rowCount} rows)</span>

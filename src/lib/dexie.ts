@@ -6,7 +6,7 @@ export class SQLDatabase extends Dexie {
     super("SQLDatabase");
     this.version(1).stores({
       savedQueries: "++id, displayName, timestamp",
-      queryHistory: "++id, timestamp",
+      queryHistory: "++id, displayName, timestamp",
     });
   }
 

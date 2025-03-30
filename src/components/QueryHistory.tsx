@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { toast } from "sonner";
 import { useInfiniteQueryHistory } from "@/api/useQueryOperations";
-import { useDeleteQueryHistory, useDeleteAllQueryHistory } from "@/api/useQueryHistory";
+import { useDeleteQueryHistory, useDeleteAllQueryHistory, useUpdateQueryHistory } from "@/api/useQueryHistory";
 import { useUpdateTab } from "@/api/useQueryTabs";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ListHeader } from "./common/ListHeader";
@@ -15,6 +15,8 @@ const ITEMS_PER_PAGE = 15;
 
 export const QueryHistory = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm);
 
   const {
@@ -27,6 +29,7 @@ export const QueryHistory = () => {
 
   const deleteHistoryMutation = useDeleteQueryHistory();
   const deleteAllHistoryMutation = useDeleteAllQueryHistory();
+  const updateHistoryMutation = useUpdateQueryHistory();
   const updateTab = useUpdateTab();
 
   const handleQueryDelete = useCallback(async (id: string) => {
@@ -53,6 +56,32 @@ export const QueryHistory = () => {
     updateTab(sql);
     toast.success("Query loaded from history");
   }, [updateTab]);
+
+  const handleQueryUpdate = useCallback(async (id: string, displayName: string | undefined) => {
+    try {
+      await updateHistoryMutation.mutateAsync({ id, displayName });
+      toast.success("Query history item updated");
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update query history";
+      toast.error(errorMessage);
+    }
+  }, [updateHistoryMutation]);
+
+  const handleEditStart = useCallback((id: string, displayName?: string) => {
+    setEditingId(id);
+    setEditValue(displayName || "");
+  }, []);
+
+  const handleEditSave = useCallback(() => {
+    if (editingId) {
+      handleQueryUpdate(editingId, editValue.trim() || undefined);
+      setEditingId(null);
+    }
+  }, [editingId, editValue, handleQueryUpdate]);
+
+  const handleEditCancel = useCallback(() => {
+    setEditingId(null);
+  }, []);
 
   const displayedQueries = useMemo(() => {
     return historyData?.pages.flatMap(page => page.data) || [];
@@ -100,12 +129,19 @@ export const QueryHistory = () => {
           <ListItem
             key={query.id}
             id={query.id}
-            title={query.sql}
+            title={query.displayName || query.sql}
             subtitle={formatDate(query.timestamp)}
+            isEditing={editingId === query.id}
+            editValue={editValue}
+            onEditValueChange={setEditValue}
+            onEditStart={handleEditStart}
+            onEditSave={handleEditSave}
+            onEditCancel={handleEditCancel}
             onSelect={() => handleSelectQuery(query.sql)}
             onDelete={handleQueryDelete}
+            isUpdating={updateHistoryMutation.isPending}
             isDeleting={deleteHistoryMutation.isPending}
-            showEditButton={false}
+            showEditButton={true}
           />
         ))}
       </ListContainer>

@@ -22,7 +22,12 @@ export const getPaginatedQueryHistory = async (
 
     if (searchTerm && searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      query = query.filter((item) => item.sql.toLowerCase().includes(term));
+      query = query.filter(
+        (item) =>
+          item.sql.toLowerCase().includes(term) ||
+          (item.displayName !== undefined &&
+            item.displayName.toLowerCase().includes(term))
+      );
     }
 
     const totalCountPromise =
@@ -33,7 +38,12 @@ export const getPaginatedQueryHistory = async (
     if (cursor) {
       const cursorItem = await dexieDb.queryHistoryTable.get(cursor);
       if (cursorItem) {
-        query = query.filter((item) => item.timestamp < cursorItem.timestamp);
+        query = query.filter(
+          (item) =>
+            item.timestamp < cursorItem.timestamp ||
+            (item.timestamp.getTime() === cursorItem.timestamp.getTime() &&
+              item.id < cursorItem.id)
+        );
       }
     }
 
@@ -71,6 +81,21 @@ export const deleteAllQueryHistory = async (): Promise<void> => {
     await dexieDb.queryHistoryTable.clear();
   } catch (err) {
     console.error("Failed to delete all query history:", err);
+    throw err;
+  }
+};
+
+export const updateQueryHistory = async ({
+  id,
+  displayName,
+}: {
+  id: string;
+  displayName?: string;
+}): Promise<void> => {
+  try {
+    await dexieDb.queryHistoryTable.update(id, { displayName });
+  } catch (err) {
+    console.error("Failed to update query history:", err);
     throw err;
   }
 };

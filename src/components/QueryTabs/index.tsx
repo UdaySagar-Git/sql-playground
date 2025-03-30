@@ -29,7 +29,7 @@ export const QueryTabs = () => {
   const handleRunQuery = async () => {
     const queryToExecute = currentTab?.query || "";
 
-    if (!queryToExecute) {
+    if (!queryToExecute.trim()) {
       toast.error("Please enter a query before executing.");
       return;
     }
@@ -46,7 +46,7 @@ export const QueryTabs = () => {
   const handleSaveQuery = async () => {
     const queryToSave = currentTab?.query || "";
 
-    if (!queryToSave) {
+    if (!queryToSave.trim()) {
       toast.error("Please enter a query before saving.");
       return;
     }

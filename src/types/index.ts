@@ -34,8 +34,8 @@ export interface SavedQuery {
 export interface QueryHistory {
   id: string;
   sql: string;
+  displayName?: string;
   timestamp: Date;
-  results?: QueryResult;
 }
 
 export interface PaginatedResponse<T> {

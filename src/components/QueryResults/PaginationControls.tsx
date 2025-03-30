@@ -126,22 +126,76 @@ export const PaginationControls = ({
       : CUSTOM_PAGE_SIZE_OPTION;
   };
 
+  if (isMobile) {
+    return (
+      <div className={styles.paginationControlsMobile}>
+        <div className={styles.paginationRowInfo}>
+          <span>
+            {startIndex + 1}-{endIndex}/{pagination.totalRows}
+          </span>
+        </div>
+
+        <div className={styles.mobilePageNav}>
+          <button
+            className={styles.pageButton}
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={pagination.currentPage === 1}
+          >
+            &lsaquo;
+          </button>
+
+          <select
+            value={pagination.currentPage}
+            onChange={(e) => handlePageChange(parseInt(e.target.value, 10))}
+            className={styles.mobilePageSelect}
+          >
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <option key={page} value={page}>
+                {page}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className={styles.pageButton}
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={pagination.currentPage === totalPages || totalPages === 0}
+          >
+            &rsaquo;
+          </button>
+        </div>
+
+        <div className={styles.mobileActions}>
+          <select
+            value={getSelectValue()}
+            onChange={handlePageSizeChange}
+            className={styles.mobileRowsSelect}
+          >
+            {pageSizeOptions.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className={styles.mobileExportButton}
+            onClick={onExportCSV}
+          >
+            CSV
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.paginationControls}>
       <div className={styles.paginationInfo}>
         <div>
-          {isMobile ? (
-            <>
-              <span>{startIndex + 1}-{endIndex} of {pagination.totalRows}</span>
-              {results.executionTime && (
-                <span className={styles.executionTime}> • {results.executionTime.toFixed(0)}ms</span>
-              )}
-            </>
-          ) : (
-            <span>Showing {startIndex + 1}-{endIndex} of {pagination.totalRows} rows</span>
-          )}
+          <span>Showing {startIndex + 1}-{endIndex} of {pagination.totalRows} rows</span>
         </div>
-        {results.executionTime && !isMobile && (
+        {results.executionTime && (
           <div className={styles.executionTime}>
             Execution time: {results.executionTime.toFixed(2)}ms
           </div>
@@ -150,7 +204,7 @@ export const PaginationControls = ({
 
       <div className={styles.paginationActions}>
         <div className={styles.pageSizeSelector}>
-          <label htmlFor="pageSize">{isMobile ? "Rows:" : "Rows per page:"}</label>
+          <label htmlFor="pageSize">Rows per page:</label>
           <select
             id="pageSize"
             value={getSelectValue()}
@@ -174,28 +228,26 @@ export const PaginationControls = ({
                 onChange={handleCustomPageSizeInputChange}
                 onKeyDown={handleCustomPageSizeKeyDown}
                 className={styles.customPageSizeInput}
-                placeholder={isMobile ? "Rows" : "Enter rows"}
+                placeholder="Enter rows"
               />
               <button
                 className={styles.customPageSizeButton}
                 onClick={applyCustomPageSize}
               >
-                {isMobile ? "OK" : "Apply"}
+                Apply
               </button>
             </div>
           )}
         </div>
 
         <div className={styles.pageNavigation}>
-          {!isMobile && (
-            <button
-              className={styles.pageButton}
-              onClick={() => handlePageChange(1)}
-              disabled={pagination.currentPage === 1}
-            >
-              &laquo;
-            </button>
-          )}
+          <button
+            className={styles.pageButton}
+            onClick={() => handlePageChange(1)}
+            disabled={pagination.currentPage === 1}
+          >
+            &laquo;
+          </button>
           <button
             className={styles.pageButton}
             onClick={() => handlePageChange(pagination.currentPage - 1)}
@@ -224,22 +276,20 @@ export const PaginationControls = ({
           >
             &rsaquo;
           </button>
-          {!isMobile && (
-            <button
-              className={styles.pageButton}
-              onClick={() => handlePageChange(totalPages)}
-              disabled={pagination.currentPage === totalPages || totalPages === 0}
-            >
-              &raquo;
-            </button>
-          )}
+          <button
+            className={styles.pageButton}
+            onClick={() => handlePageChange(totalPages)}
+            disabled={pagination.currentPage === totalPages || totalPages === 0}
+          >
+            &raquo;
+          </button>
         </div>
 
         <button
           className={styles.exportButton}
           onClick={onExportCSV}
         >
-          {isMobile ? "CSV" : "Export CSV"}
+          Export CSV
         </button>
       </div>
     </div>
