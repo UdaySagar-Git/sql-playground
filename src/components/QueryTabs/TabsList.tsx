@@ -29,4 +29,4 @@ export const TabsList = ({ tabs, activeTabId, onTabSelect, onTabClose, onNewTab 
       </button>
     </div>
   );
-}; 
+};

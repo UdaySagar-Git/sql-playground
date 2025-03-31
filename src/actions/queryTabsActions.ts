@@ -1,69 +1,29 @@
 import { Tab } from "@/types";
-import {
-  SAMPLE_QUERY1,
-  LOCAL_STORAGE_TABS_KEY,
-  LOCAL_STORAGE_ACTIVE_TAB_KEY,
-  SAMPLE_QUERY2,
-  SAMPLE_QUERY3,
-} from "@/lib/constants";
+import { LOCAL_STORAGE_TABS_KEY, LOCAL_STORAGE_ACTIVE_TAB_KEY } from "@/lib/constants";
 import { generateId } from "@/lib/utils";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
-export const INITIAL_TABS: Tab[] = [
-  {
-    id: generateId(),
-    query: SAMPLE_QUERY1,
-  },
-  {
-    id: generateId(),
-    query: SAMPLE_QUERY2,
-  },
-  {
-    id: generateId(),
-    query: SAMPLE_QUERY3,
-  },
-];
+export const INITIAL_TABS: Tab[] = [];
 
-export const loadTabsFromStorage = (): Tab[] => {
-  try {
-    const storedTabs = localStorage.getItem(LOCAL_STORAGE_TABS_KEY);
-    if (storedTabs) {
-      return JSON.parse(storedTabs);
-    }
-  } catch (error) {
-    console.error("Error loading tabs from localStorage:", error);
-  }
-  return INITIAL_TABS;
-};
+export function useTabsStorage() {
+  const [tabs, setTabs] = useLocalStorage<Tab[]>(
+    LOCAL_STORAGE_TABS_KEY,
+    INITIAL_TABS,
+    true
+  );
+  const [activeTabId, setActiveTabId] = useLocalStorage<string>(
+    LOCAL_STORAGE_ACTIVE_TAB_KEY,
+    "",
+    false
+  );
 
-export const saveTabsToStorage = (tabs: Tab[]) => {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_TABS_KEY, JSON.stringify(tabs));
-  } catch (error) {
-    console.error("Error saving tabs to localStorage:", error);
-  }
-};
-
-export const loadActiveTabIdFromStorage = (): string => {
-  try {
-    const storedActiveTabId = localStorage.getItem(
-      LOCAL_STORAGE_ACTIVE_TAB_KEY
-    );
-    if (storedActiveTabId) {
-      return storedActiveTabId;
-    }
-  } catch (error) {
-    console.error("Error loading active tab ID from localStorage:", error);
-  }
-  return INITIAL_TABS[0].id;
-};
-
-export const saveActiveTabIdToStorage = (id: string) => {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_ACTIVE_TAB_KEY, id);
-  } catch (error) {
-    console.error("Error saving active tab ID to localStorage:", error);
-  }
-};
+  return {
+    tabs,
+    setTabs,
+    activeTabId,
+    setActiveTabId,
+  };
+}
 
 export const createNewTab = (): Tab => {
   return {

@@ -38,6 +38,10 @@ export const MonacoEditor = () => {
     editorInstance.addCommand(monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter, handleRunQuery);
   }, [handleRunQuery]);
 
+  if (!currentTab) {
+    return <div className={styles.noTabSelected}>No tab selected</div>;
+  }
+
   return (
     <div className={styles.editorContainer}>
       <Suspense fallback={<div className={styles.loading}>Loading editor...</div>}>
