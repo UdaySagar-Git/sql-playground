@@ -5,7 +5,7 @@ import { mockTables } from "@/mock/tables";
 import { dexieDb } from "@/lib/dexie";
 import { generateId } from "@/lib/utils";
 import { sqlFiles } from "@/mock/datasets";
-import { SAMPLE_QUERY1, SAMPLE_QUERY2 } from "@/lib/constants";
+import { SAMPLE_QUERY2, SAMPLE_QUERY3 } from "@/lib/constants";
 import { mockQueries } from "@/mock/queries";
 
 export const initializeSQLService = async (
@@ -59,14 +59,14 @@ const initializeSavedQueries = async (): Promise<void> => {
 
       await dexieDb.savedQueriesTable.add({
         id: generateId(),
-        sql: SAMPLE_QUERY1,
+        sql: SAMPLE_QUERY2,
         displayName: "Sample Employee Query",
         timestamp: new Date(),
       });
 
       await dexieDb.savedQueriesTable.add({
         id: generateId(),
-        sql: SAMPLE_QUERY2,
+        sql: SAMPLE_QUERY3,
         displayName: "Generate 100000 rows",
         timestamp: new Date(),
       });
