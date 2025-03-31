@@ -6,6 +6,10 @@
 
 SQL Playground is a high-performance, in-browser SQL execution tool built with [Next.js](https://nextjs.org/). Designed to efficiently handle millions of rows, it leverages WebAssembly-based [SQL.js](https://sql.js.org/) for query execution and [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) for data persistence. Optimized to prevent unnecessary re-renders, it is designed for seamless future integration with any backend.
 
+### Application Dashboard
+
+<img src="docs/dashboard.png" alt="SQL Playground Dashboard" width="800">
+
 ## Architecture Overview
 
 ### Core Technologies
@@ -16,6 +20,10 @@ SQL Playground is a high-performance, in-browser SQL execution tool built with [
 - **[React Query](https://tanstack.com/query/latest)**: Manages state, caching, and background updates.
 - **[React-Virtuoso](https://virtuoso.dev/)**: Implements virtualized rendering for efficient handling of large datasets.
 - **[Monaco Editor](https://microsoft.github.io/monaco-editor/)**: Provides a powerful SQL code editor.
+- **[React Resizable Panels](https://github.com/bvaughn/react-resizable-panels)**: Enables resizable panel layouts for flexible UI.
+- **[Recharts](https://recharts.org/)**: Provides interactive charts for data visualization.
+- **[Sonner](https://sonner.emilkowal.ski/)**: Delivers elegant toast notifications.
+- **[Next Themes](https://themes.udaysagar.in/)**: Handles dark/light mode theming.
 
 ### Data Flow
 
