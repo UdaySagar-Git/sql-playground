@@ -1,81 +1,76 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tab } from "@/types";
 import { QUERY_KEYS } from "@/lib/constants";
-import { generateId } from "@/lib/utils";
 import {
-  INITIAL_TABS,
-  loadTabsFromStorage,
-  saveTabsToStorage,
-  loadActiveTabIdFromStorage,
-  saveActiveTabIdToStorage,
+  useTabsStorage,
   createNewTab,
 } from "@/actions/queryTabsActions";
 
 export function useTabs() {
-  const queryClient = useQueryClient();
-
-  const initialTabs = loadTabsFromStorage();
-  if (!queryClient.getQueryData([QUERY_KEYS.TABS])) {
-    queryClient.setQueryData([QUERY_KEYS.TABS], initialTabs);
-
-    const activeTabId = loadActiveTabIdFromStorage();
-    queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], activeTabId);
-  }
+  const { tabs, setTabs } = useTabsStorage();
 
   const { data } = useQuery<Tab[]>({
     queryKey: [QUERY_KEYS.TABS],
-    initialData: initialTabs,
+    initialData: tabs,
     staleTime: Infinity,
   });
 
-  if (data) {
-    saveTabsToStorage(data);
-  }
+  useEffect(() => {
+    if (data) {
+      setTabs(data);
+    }
+  }, [data, setTabs]);
 
   return { data };
 }
 
 export function useActiveTabId() {
-  const initialTabId = loadActiveTabIdFromStorage();
+  const { activeTabId, setActiveTabId } = useTabsStorage();
 
   const { data } = useQuery<string>({
     queryKey: [QUERY_KEYS.CURRENT_TAB_ID],
-    initialData: initialTabId,
+    initialData: activeTabId,
     staleTime: Infinity,
   });
 
-  if (data) {
-    saveActiveTabIdToStorage(data);
-  }
+  useEffect(() => {
+    if (data) {
+      setActiveTabId(data);
+    }
+  }, [data, setActiveTabId]);
 
-  return data || initialTabId;
+  return data || activeTabId;
 }
 
 export function useSetActiveTab() {
   const queryClient = useQueryClient();
+  const { setActiveTabId } = useTabsStorage();
+
   return useCallback(
     (id: string) => {
       queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], id);
-      saveActiveTabIdToStorage(id);
+      setActiveTabId(id);
     },
-    [queryClient]
+    [queryClient, setActiveTabId]
   );
 }
 
 export function useCurrentTab() {
   const activeTabId = useActiveTabId();
-  const { data: tabs = [] } = useQuery<Tab[]>({
+  const { tabs } = useTabsStorage();
+  const { data: queryTabs = [] } = useQuery<Tab[]>({
     queryKey: [QUERY_KEYS.TABS],
-    initialData: loadTabsFromStorage(),
+    initialData: tabs,
     staleTime: Infinity,
   });
 
-  return tabs.find((tab) => tab.id === activeTabId) || INITIAL_TABS[0];
+  return queryTabs.find((tab) => tab.id === activeTabId);
 }
 
 export function useUpdateTab() {
   const queryClient = useQueryClient();
+  const { setTabs } = useTabsStorage();
 
   return useCallback(
     (query: string) => {
@@ -92,50 +87,39 @@ export function useUpdateTab() {
       );
 
       queryClient.setQueryData([QUERY_KEYS.TABS], updatedTabs);
-      saveTabsToStorage(updatedTabs);
+      setTabs(updatedTabs);
     },
-    [queryClient]
+    [queryClient, setTabs]
   );
 }
 
 export function useDeleteTab() {
   const queryClient = useQueryClient();
+  const { setTabs, setActiveTabId } = useTabsStorage();
 
   return useCallback(
     (id: string) => {
-      const currentTabs =
-        queryClient.getQueryData<Tab[]>([QUERY_KEYS.TABS]) || [];
-      const activeTabId = queryClient.getQueryData<string>([
-        QUERY_KEYS.CURRENT_TAB_ID,
-      ]);
-
-      if (!activeTabId) return;
-
+      const currentTabs = queryClient.getQueryData<Tab[]>([QUERY_KEYS.TABS]) || [];
       const newTabs = currentTabs.filter((tab) => tab.id !== id);
-
-      if (newTabs.length === 0) {
-        const newTab = { ...INITIAL_TABS[0], id: generateId() };
-        queryClient.setQueryData([QUERY_KEYS.TABS], [newTab]);
-        queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTab.id);
-        saveTabsToStorage([newTab]);
-        saveActiveTabIdToStorage(newTab.id);
-        return;
-      }
-
-      if (id === activeTabId) {
-        queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTabs[0].id);
-        saveActiveTabIdToStorage(newTabs[0].id);
-      }
-
+      
       queryClient.setQueryData([QUERY_KEYS.TABS], newTabs);
-      saveTabsToStorage(newTabs);
+      setTabs(newTabs);
+
+      if (newTabs.length > 0) {
+        queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTabs[0].id);
+        setActiveTabId(newTabs[0].id);
+      } else {
+        queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], "");
+        setActiveTabId("");
+      }
     },
-    [queryClient]
+    [queryClient, setTabs, setActiveTabId]
   );
 }
 
 export function useCreateTab() {
   const queryClient = useQueryClient();
+  const { setTabs, setActiveTabId } = useTabsStorage();
 
   return useCallback(() => {
     const currentTabs =
@@ -145,7 +129,7 @@ export function useCreateTab() {
     const updatedTabs = [...currentTabs, newTab];
     queryClient.setQueryData([QUERY_KEYS.TABS], updatedTabs);
     queryClient.setQueryData([QUERY_KEYS.CURRENT_TAB_ID], newTab.id);
-    saveTabsToStorage(updatedTabs);
-    saveActiveTabIdToStorage(newTab.id);
-  }, [queryClient]);
+    setTabs(updatedTabs);
+    setActiveTabId(newTab.id);
+  }, [queryClient, setTabs, setActiveTabId]);
 }

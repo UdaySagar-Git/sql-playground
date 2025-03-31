@@ -7,7 +7,7 @@ import { QueryHistory } from "@/components/QueryHistory";
 import { QueryResults } from "@/components/QueryResults";
 import { SavedQueries } from "@/components/SavedQueries";
 import { QueryTabs } from "@/components/QueryTabs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import styles from "./page.module.css";
 import { usePanelState } from "@/providers/PanelProvider";
 import { initializeSQLService } from "@/actions/tableActions";
@@ -15,9 +15,17 @@ import { queryClient } from "@/lib/queryClient";
 import { QUERY_KEYS } from "@/lib/constants";
 import { resetDB, getDB } from "@/lib/sql";
 
+function LoadingFallback() {
+  return (
+    <div className={styles.loadingFallback}>
+      <div className={styles.loadingSpinner} />
+      <span>Loading...</span>
+    </div>
+  );
+}
+
 export default function Home() {
   const [initError, setInitError] = useState<string | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const { showLeftPanel, showRightPanel } = usePanelState();
 
@@ -26,7 +34,6 @@ export default function Home() {
 
     const checkAndInitialize = async () => {
       try {
-        setIsInitializing(true);
         setInitError(null);
 
         // fallback 
@@ -52,10 +59,6 @@ export default function Home() {
       } catch (err) {
         if (!isMounted) return;
         setInitError(err instanceof Error ? err.message : "Failed to initialize application");
-      } finally {
-        if (isMounted) {
-          setIsInitializing(false);
-        }
       }
     };
 
@@ -84,10 +87,6 @@ export default function Home() {
     );
   }
 
-  if (isInitializing) {
-    return <div className={styles.loading}>Initializing application...</div>;
-  }
-
   return (
     <div className={styles.page}>
       <PanelGroup direction="horizontal" className={styles.panelGroup}>
@@ -97,25 +96,35 @@ export default function Home() {
         >
           <PanelGroup direction="vertical" className={styles.leftPanelGroup}>
             <Panel defaultSize={50} minSize={30} className={styles.leftPanel}>
-              <TableList />
+              <Suspense fallback={<LoadingFallback />}>
+                <TableList />
+              </Suspense>
             </Panel>
             <PanelResizeHandle className={styles.leftResizeHandle} />
             <Panel defaultSize={50} minSize={30} className={styles.leftPanel}>
-              <SavedQueries />
+              <Suspense fallback={<LoadingFallback />}>
+                <SavedQueries />
+              </Suspense>
             </Panel>
           </PanelGroup>
         </Panel>
         <PanelResizeHandle className={styles.resizeHandle} />
         <Panel defaultSize={60} minSize={30} className={styles.panel}>
           <div className={styles.editorContainer}>
-            <QueryTabs />
+            <Suspense fallback={<LoadingFallback />}>
+              <QueryTabs />
+            </Suspense>
             <PanelGroup direction="vertical" className={styles.editorPanelGroup}>
               <Panel defaultSize={50} className={styles.editorPanel}>
-                <MonacoEditor />
+                <Suspense fallback={<LoadingFallback />}>
+                  <MonacoEditor />
+                </Suspense>
               </Panel>
               <PanelResizeHandle className={styles.editorResizeHandle} />
               <Panel defaultSize={50} className={styles.resultPanel}>
-                <QueryResults />
+                <Suspense fallback={<LoadingFallback />}>
+                  <QueryResults />
+                </Suspense>
               </Panel>
             </PanelGroup>
           </div>
@@ -125,7 +134,9 @@ export default function Home() {
           defaultSize={20}
           className={`${styles.panel} ${showRightPanel ? styles.active : ''}`}
         >
-          <QueryHistory />
+          <Suspense fallback={<LoadingFallback />}>
+            <QueryHistory />
+          </Suspense>
         </Panel>
       </PanelGroup>
     </div>

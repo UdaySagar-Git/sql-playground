@@ -1,5 +1,6 @@
 import { Play, Save, Trash2 } from "lucide-react";
 import styles from "./queryTabs.module.css";
+import { usePlatform } from "@/hooks/usePlatform";
 
 interface ActionButtonsProps {
   onRunQuery: () => void;
@@ -16,7 +17,8 @@ export const ActionButtons = ({
   isRunning,
   isSaving,
 }: ActionButtonsProps) => {
-  const modKey = navigator.platform.toLowerCase().includes('mac') ? '⌘' : 'Ctrl';
+  const platform = usePlatform();
+  const modKey = platform === 'mac' ? '⌘' : 'Ctrl';
 
   return (
     <div className={styles.actionButtons}>
