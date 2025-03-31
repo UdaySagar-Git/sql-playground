@@ -23,6 +23,7 @@ export const ListHeader = ({ title, itemCount, onClearAll, isClearing }: ListHea
           className={styles.clearAllButton}
           onClick={handleClearAll}
           title="Clear all"
+          aria-label={`Clear all ${title.toLowerCase()}`}
           disabled={isClearing}
         >
           Clear All

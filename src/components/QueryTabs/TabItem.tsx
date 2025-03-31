@@ -15,14 +15,16 @@ export const TabItem = ({ id, name, isActive, onSelect, onClose }: TabItemProps)
       <button
         className={styles.tabButton}
         onClick={() => onSelect(id)}
+        aria-label={`Switch to ${name}`}
       >
         {name}
       </button>
       <button
         className={styles.closeButton}
         onClick={() => onClose(id)}
+        aria-label={`Close ${name}`}
       >
-        <X size={14} />
+        <X size={14} aria-hidden="true" />
       </button>
     </div>
   );

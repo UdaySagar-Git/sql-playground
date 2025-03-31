@@ -2,17 +2,14 @@ import { useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tab } from "@/types";
 import { QUERY_KEYS } from "@/lib/constants";
-import {
-  useTabsStorage,
-  createNewTab,
-} from "@/actions/queryTabsActions";
+import { useTabsStorage, createNewTab } from "@/actions/queryTabsActions";
 
 export function useTabs() {
   const { tabs, setTabs } = useTabsStorage();
 
   const { data } = useQuery<Tab[]>({
     queryKey: [QUERY_KEYS.TABS],
-    initialData: tabs,
+    initialData: tabs || [],
     staleTime: Infinity,
   });
 
@@ -30,7 +27,7 @@ export function useActiveTabId() {
 
   const { data } = useQuery<string>({
     queryKey: [QUERY_KEYS.CURRENT_TAB_ID],
-    initialData: activeTabId,
+    initialData: activeTabId || "",
     staleTime: Infinity,
   });
 
@@ -40,7 +37,7 @@ export function useActiveTabId() {
     }
   }, [data, setActiveTabId]);
 
-  return data || activeTabId;
+  return data || activeTabId || "";
 }
 
 export function useSetActiveTab() {
@@ -61,7 +58,7 @@ export function useCurrentTab() {
   const { tabs } = useTabsStorage();
   const { data: queryTabs = [] } = useQuery<Tab[]>({
     queryKey: [QUERY_KEYS.TABS],
-    initialData: tabs,
+    initialData: tabs || [],
     staleTime: Infinity,
   });
 
@@ -99,9 +96,10 @@ export function useDeleteTab() {
 
   return useCallback(
     (id: string) => {
-      const currentTabs = queryClient.getQueryData<Tab[]>([QUERY_KEYS.TABS]) || [];
+      const currentTabs =
+        queryClient.getQueryData<Tab[]>([QUERY_KEYS.TABS]) || [];
       const newTabs = currentTabs.filter((tab) => tab.id !== id);
-      
+
       queryClient.setQueryData([QUERY_KEYS.TABS], newTabs);
       setTabs(newTabs);
 

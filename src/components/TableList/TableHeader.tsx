@@ -13,9 +13,11 @@ export const TableHeader = ({ onRefresh, isRefreshing }: TableHeaderProps) => {
       <button
         className={styles.refreshButton}
         onClick={onRefresh}
+        title="Refresh tables list"
+        aria-label={isRefreshing ? "Refreshing tables list" : "Refresh tables list"}
         disabled={isRefreshing}
       >
-        <RefreshCw className={`${styles.refreshIcon} ${isRefreshing ? styles.spinning : ''}`} />
+        <RefreshCw className={`${styles.refreshIcon} ${isRefreshing ? styles.spinning : ''}`} aria-hidden="true" />
       </button>
     </div>
   );

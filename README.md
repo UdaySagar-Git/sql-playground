@@ -35,6 +35,8 @@ SQL Playground is a high-performance, in-browser SQL execution tool built with [
    - SQL.js maintains in-memory tables, resetting upon page reload.
    - React Query manages state, caching, and background updates.
 
+### System Architecture Diagram
+
 <img src="docs/architecture.png" alt="SQL Playground Architecture" width="800">
 
 ## Key Features
@@ -62,6 +64,7 @@ SQL Playground is a high-performance, in-browser SQL execution tool built with [
 - **Lazy Loading**: Uses `lazy()` and `Suspense` to load non-critical components asynchronously.
 - **Optimized Re-renders**: Utilizes `useMemo` and `useCallback` to prevent unnecessary updates.
 - **Reusable Components**: Enhances maintainability and performance.
+- **Lazy Tab Loading**: No tabs are created by default to avoid rendering the editor component, significantly improving initial load time.
 
 ## Project Structure
 
@@ -79,31 +82,27 @@ src/
 └── types/        # TypeScript type definitions
 ```
 
-## Performance Benchmarks
-
-| Metric                         | Value |
-| ------------------------------ | ----- |
-| First Contentful Paint (FCP)   | 0.4s  |
-| Largest Contentful Paint (LCP) | 0.4s  |
-| Total Blocking Time (TBT)      | 10ms  |
-| Cumulative Layout Shift (CLS)  | 0.009 |
-| Performance Score              | 99    |
-| Accessibility Score            | 82    |
-| Best Practices Score           | 89    |
-| SEO Score                      | 100   |
-
-<img src="docs/performance.png" alt="SQL Playground Performance Benchmarks" width="400">
-
 ## Tools Used for Performance Measurement
 
-- **[React Scan](https://github.com/therabbits/react-scan)**: Analyzes component rendering performance.
+- **[React Scan](https://react-scan.com/)**: Analyzes component rendering performance.
 - **[Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/)**: Evaluates accessibility, performance, and SEO.
 - **[GTmetrix](https://gtmetrix.com/)**: Measures load times and best practices.
 - **[Chrome DevTools](https://developer.chrome.com/docs/devtools/)**: Identifies and debugs performance bottlenecks.
 
-## Planned Enhancements
+## Performance Benchmarks
 
-- **Optimize SQL.js initialization and CSV export** by offloading them to a worker thread.
-- **Advanced Filtering & Sorting**: Enable dynamic filtering and sorting of query results.
-- **Data Import Support**: Allow users to import tables from CSV files.
-- **User Authentication & Cloud Sync**: Enable saving queries across sessions and devices.
+| Metric                         | Value |
+| ------------------------------ | ----- |
+| First Contentful Paint (FCP)   | 0.2s  |
+| Largest Contentful Paint (LCP) | 0.6s  |
+| Total Blocking Time (TBT)      | 0ms   |
+| Cumulative Layout Shift (CLS)  | 0     |
+| Speed Index                    | 0.2s  |
+| Performance Score              | 100   |
+| Accessibility Score            | 100   |
+| Best Practices Score           | 100   |
+| SEO Score                      | 100   |
+
+### Performance Metrics Visualization
+
+<img src="docs/performance.png" alt="SQL Playground Performance Benchmarks" width="400">

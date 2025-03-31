@@ -5,6 +5,7 @@ import { useTables, useRefreshTables } from "@/api/useDatabaseTables";
 import { useUpdateTab } from "@/api/useQueryTabs";
 import { TableHeader } from "./TableHeader";
 import { TableItem } from "./TableItem";
+import { Loading } from "@/components/common/Loading";
 
 export const TableList = () => {
   const [openTable, setOpenTable] = useState<string | null>(null);
@@ -25,13 +26,11 @@ export const TableList = () => {
   const handleTableClick = useCallback((e: React.MouseEvent, tableName: string) => {
     e.stopPropagation();
     updateTab(`SELECT * FROM ${tableName};`);
-    toast.success(`Selected table: ${tableName}`);
   }, [updateTab]);
 
   const handleColumnClick = useCallback((e: React.MouseEvent, tableName: string, columnName: string) => {
     e.stopPropagation();
     updateTab(`SELECT ${columnName} FROM ${tableName};`);
-    toast.success(`Selected column: ${columnName} from ${tableName}`);
   }, [updateTab]);
 
   if (isError) {
@@ -53,7 +52,9 @@ export const TableList = () => {
         isRefreshing={refreshTablesMutation.isPending}
       />
       {isLoading ? (
-        <div className={styles.loading}>Loading tables...</div>
+        <div className={styles.loadingWrapper}>
+          <Loading text="Loading tables..." />
+        </div>
       ) : tables.length === 0 ? (
         <div className={styles.noTables}>No tables available</div>
       ) : (

@@ -104,13 +104,13 @@
 /* Run Query Button */
 .runButton {
   padding: 4px 6px;
-  background: var(--accent-primary);
-  color: #f5f5f5;
+  background: #a65a28;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-size: 12px;
@@ -123,14 +123,14 @@
 }
 
 .runButton:hover {
-  background: var(--accent-secondary);
-  color: var(--background-primary);
+  background: #cc7832;
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
 /* Loading State */
 .loading {
-  opacity: 0.7;
+  opacity: 0.9;
   cursor: not-allowed;
 }
 

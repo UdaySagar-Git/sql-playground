@@ -24,8 +24,12 @@ export const TabsList = ({ tabs, activeTabId, onTabSelect, onTabClose, onNewTab 
           onClose={onTabClose}
         />
       ))}
-      <button className={styles.addTabButton} onClick={onNewTab}>
-        <Plus size={14} />
+      <button
+        className={styles.addTabButton}
+        onClick={onNewTab}
+        aria-label="Add new query tab"
+      >
+        <Plus size={14} aria-hidden="true" />
       </button>
     </div>
   );

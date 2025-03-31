@@ -17,7 +17,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--background-tertiary);
+}
+
+.noTabContent {
+  text-align: center;
+  padding: 1rem;
+}
+
+.noTabContent p {
+  margin: 0;
   color: var(--foreground-secondary);
+}
+
+.noTabContent p:first-child {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.noTabSubtext {
   font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.loadingWrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--background-tertiary);
 }

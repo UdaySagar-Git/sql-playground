@@ -1,5 +1,8 @@
 import { Tab } from "@/types";
-import { LOCAL_STORAGE_TABS_KEY, LOCAL_STORAGE_ACTIVE_TAB_KEY } from "@/lib/constants";
+import {
+  LOCAL_STORAGE_TABS_KEY,
+  LOCAL_STORAGE_ACTIVE_TAB_KEY,
+} from "@/lib/constants";
 import { generateId } from "@/lib/utils";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { editor } from 'monaco-editor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { useTheme } from 'next-themes';
+import { Loading } from '@/components/common/Loading';
 
 const MonacoEditorLazy = lazy(() => import("@monaco-editor/react").then(
   module => ({ default: module.Editor })
@@ -39,12 +40,21 @@ export const MonacoEditor = () => {
   }, [handleRunQuery]);
 
   if (!currentTab) {
-    return <div className={styles.noTabSelected}>No tab selected</div>;
+    return <div className={styles.noTabSelected}>
+      <div className={styles.noTabContent}>
+        <p>No query tab selected</p>
+        <p className={styles.noTabSubtext}>Create a new tab to get started</p>
+      </div>
+    </div>;
   }
 
   return (
     <div className={styles.editorContainer}>
-      <Suspense fallback={<div className={styles.loading}>Loading editor...</div>}>
+      <Suspense fallback={
+        <div className={styles.loadingWrapper}>
+          <Loading text="Loading editor..." />
+        </div>
+      }>
         <MonacoEditorLazy
           height="100%"
           defaultLanguage="sql"

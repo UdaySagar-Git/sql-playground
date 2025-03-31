@@ -27,20 +27,27 @@ export const ActionButtons = ({
         onClick={onRunQuery}
         disabled={isRunning}
         title={`Run Query (${modKey}+Enter)`}
+        aria-label={`Run Query (${modKey}+Enter)`}
       >
-        <Play size={14} className={styles.runIcon} />
+        <Play size={14} className={styles.runIcon} aria-hidden="true" />
         {isRunning ? 'Running...' : 'Run'}
       </button>
       <button
         className={styles.iconButton}
         onClick={onSaveQuery}
         title="Save Query"
+        aria-label="Save Query"
         disabled={isSaving}
       >
-        <Save size={16} />
+        <Save size={16} aria-hidden="true" />
       </button>
-      <button className={styles.iconButton} onClick={onClear} title="Clear">
-        <Trash2 size={16} />
+      <button
+        className={styles.iconButton}
+        onClick={onClear}
+        title="Clear Query"
+        aria-label="Clear Query"
+      >
+        <Trash2 size={16} aria-hidden="true" />
       </button>
     </div>
   );

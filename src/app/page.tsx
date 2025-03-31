@@ -14,14 +14,10 @@ import { initializeSQLService } from "@/actions/tableActions";
 import { queryClient } from "@/lib/queryClient";
 import { QUERY_KEYS } from "@/lib/constants";
 import { resetDB, getDB } from "@/lib/sql";
+import { Loading } from "@/components/common/Loading";
 
 function LoadingFallback() {
-  return (
-    <div className={styles.loadingFallback}>
-      <div className={styles.loadingSpinner} />
-      <span>Loading...</span>
-    </div>
-  );
+  return <Loading text="Loading..." />;
 }
 
 export default function Home() {
@@ -93,35 +89,51 @@ export default function Home() {
         <Panel
           defaultSize={20}
           className={`${styles.panel} ${showLeftPanel ? styles.active : ''}`}
+          id="left-panel"
         >
           <PanelGroup direction="vertical" className={styles.leftPanelGroup}>
-            <Panel defaultSize={50} minSize={30} className={styles.leftPanel}>
+            <Panel defaultSize={50} minSize={30} className={styles.leftPanel} id="table-list">
               <Suspense fallback={<LoadingFallback />}>
                 <TableList />
               </Suspense>
             </Panel>
-            <PanelResizeHandle className={styles.leftResizeHandle} />
-            <Panel defaultSize={50} minSize={30} className={styles.leftPanel}>
+            <PanelResizeHandle
+              className={styles.leftResizeHandle}
+              role="separator"
+              aria-orientation="horizontal"
+              aria-controls="table-list saved-queries"
+            />
+            <Panel defaultSize={50} minSize={30} className={styles.leftPanel} id="saved-queries">
               <Suspense fallback={<LoadingFallback />}>
                 <SavedQueries />
               </Suspense>
             </Panel>
           </PanelGroup>
         </Panel>
-        <PanelResizeHandle className={styles.resizeHandle} />
-        <Panel defaultSize={60} minSize={30} className={styles.panel}>
+        <PanelResizeHandle
+          className={styles.resizeHandle}
+          role="separator"
+          aria-orientation="vertical"
+          aria-controls="left-panel main-panel"
+        />
+        <Panel defaultSize={60} minSize={30} className={styles.panel} id="main-panel">
           <div className={styles.editorContainer}>
             <Suspense fallback={<LoadingFallback />}>
               <QueryTabs />
             </Suspense>
             <PanelGroup direction="vertical" className={styles.editorPanelGroup}>
-              <Panel defaultSize={50} className={styles.editorPanel}>
+              <Panel defaultSize={50} className={styles.editorPanel} id="editor-panel">
                 <Suspense fallback={<LoadingFallback />}>
                   <MonacoEditor />
                 </Suspense>
               </Panel>
-              <PanelResizeHandle className={styles.editorResizeHandle} />
-              <Panel defaultSize={50} className={styles.resultPanel}>
+              <PanelResizeHandle
+                className={styles.editorResizeHandle}
+                role="separator"
+                aria-orientation="horizontal"
+                aria-controls="editor-panel result-panel"
+              />
+              <Panel defaultSize={50} className={styles.resultPanel} id="result-panel">
                 <Suspense fallback={<LoadingFallback />}>
                   <QueryResults />
                 </Suspense>
@@ -129,10 +141,16 @@ export default function Home() {
             </PanelGroup>
           </div>
         </Panel>
-        <PanelResizeHandle className={styles.resizeHandle} />
+        <PanelResizeHandle
+          className={styles.resizeHandle}
+          role="separator"
+          aria-orientation="vertical"
+          aria-controls="main-panel right-panel"
+        />
         <Panel
           defaultSize={20}
           className={`${styles.panel} ${showRightPanel ? styles.active : ''}`}
+          id="right-panel"
         >
           <Suspense fallback={<LoadingFallback />}>
             <QueryHistory />

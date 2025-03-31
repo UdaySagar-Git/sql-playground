@@ -64,14 +64,13 @@
   }
 }
 
-/* Status Indicators */
-.loading {
+/* Loading Wrapper */
+.loadingWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--text-secondary);
-  font-size: 13px;
+  padding: 16px;
 }
 
 .error {
@@ -152,9 +151,9 @@
 }
 
 .rowCount {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 11px;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 /* Columns List */
@@ -172,7 +171,7 @@
   gap: 8px;
   padding: 4px 12px;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-family: "SF Mono", "Consolas", monospace;
   cursor: pointer;
   border-radius: 3px;
@@ -191,9 +190,10 @@
 }
 
 .columnType {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 11px;
   background: var(--background-tertiary);
   padding: 2px 6px;
   border-radius: 3px;
+  opacity: 0.9;
 }
